@@ -1,19 +1,12 @@
 {
   "enabledPlugins": {
-    "ponytail@ponytail": true,
-    "andrej-karpathy-skills@karpathy-skills": true
+    "ponytail@ponytail": true
   },
   "extraKnownMarketplaces": {
     "ponytail": {
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
-      }
-    },
-    "karpathy-skills": {
-      "source": {
-        "source": "github",
-        "repo": "forrestchang/andrej-karpathy-skills"
       }
     }
   }

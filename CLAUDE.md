@@ -33,7 +33,7 @@ Shopify theme for Kamui, built on Shopify's Skeleton theme. `config/settings_sch
 ## Agent tooling
 
 - OpenSpec: plan non-trivial changes with `/opsx:propose`, build them with `/opsx:apply`, and finish with `/opsx:archive`. Specs live in `openspec/`. Refresh the generated files with `openspec update`.
-- Ponytail and Karpathy guidelines: Claude Code plugins enabled in `.claude/settings.json`. Accept the install prompt when opening the repo.
+- Ponytail and Karpathy guidelines: skills in `.claude/skills/`. Ponytail is also enabled as a plugin in `.claude/settings.json` because its always-on mode needs the plugin's hooks. Accept the install prompt when opening the repo.
 
 ## Shopify platform rules
 
