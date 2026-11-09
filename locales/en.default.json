@@ -42,7 +42,13 @@
     "blogs": "Blogs",
     "instagram": "Instagram",
     "our_story": "Our story",
+    "facebook": "Facebook",
     "policies": "Policies",
+    "privacy_policy": "Privacy policy",
+    "refund_policy": "Refund policy",
+    "shipping_policy": "Shipping policy",
+    "terms_of_service": "Terms of service",
+    "twitter": "Twitter",
     "social": "Social",
     "youtube": "YouTube"
   },
@@ -73,6 +79,9 @@
     },
     "journey": {
       "title": "Our journey"
+    },
+    "pattern": {
+      "title": "Pattern"
     },
     "products": {
       "title": "Products",

@@ -1,0 +1,33 @@
+<div id="pattern" class="pattern full-width">
+  {% # Placeholder: build this section here %}
+  <h2 class="pattern__title">{{ 'sections.pattern.title' | t }}</h2>
+  <div class="pattern__placeholder"></div>
+</div>
+
+{% stylesheet %}
+  .pattern {
+    padding: 4rem max(var(--page-margin), 2vw);
+  }
+  .pattern__title {
+    margin-block-end: 2rem;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .pattern__placeholder {
+    min-height: 20rem;
+    border: 1px dashed currentcolor;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.pattern",
+  "presets": [
+    {
+      "name": "t:general.pattern"
+    }
+  ]
+}
+{% endschema %}

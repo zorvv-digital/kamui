@@ -6,22 +6,24 @@
 
     <div>
       <p class="footer__heading">{{ 'footer.social' | t }}</p>
-      {% if section.settings.instagram_url != blank %}
-        <a href="{{ section.settings.instagram_url }}">{{ 'footer.instagram' | t }}</a>
-      {% endif %}
-      {% if section.settings.youtube_url != blank %}
-        <a href="{{ section.settings.youtube_url }}">{{ 'footer.youtube' | t }}</a>
-      {% endif %}
+      <a href="{{ section.settings.instagram_url | default: '#' }}">{{ 'footer.instagram' | t }}</a>
+      <a href="{{ section.settings.youtube_url | default: '#' }}">{{ 'footer.youtube' | t }}</a>
+      <a href="{{ section.settings.twitter_url | default: '#' }}">{{ 'footer.twitter' | t }}</a>
+      <a href="{{ section.settings.facebook_url | default: '#' }}">{{ 'footer.facebook' | t }}</a>
     </div>
 
     <div>
-      <a href="/pages/contact">{{ 'header.contact' | t }}</a>
-      <a href="/policies/privacy-policy">{{ 'footer.policies' | t }}</a>
+      <p class="footer__heading">{{ 'footer.policies' | t }}</p>
+      <a href="/policies/privacy-policy">{{ 'footer.privacy_policy' | t }}</a>
+      <a href="/policies/terms-of-service">{{ 'footer.terms_of_service' | t }}</a>
+      <a href="/policies/refund-policy">{{ 'footer.refund_policy' | t }}</a>
+      <a href="/policies/shipping-policy">{{ 'footer.shipping_policy' | t }}</a>
     </div>
 
     <div>
       <p class="footer__heading">{{ 'footer.about' | t }}</p>
       <a href="{{ routes.root_url }}#our-journey">{{ 'footer.our_story' | t }}</a>
+      <a href="/pages/contact">{{ 'header.contact' | t }}</a>
       <a href="/blogs/news">{{ 'footer.blogs' | t }}</a>
     </div>
   </div>
@@ -51,11 +53,31 @@
   footer {
     display: flex;
     flex-direction: column;
-    gap: 4rem;
+    gap: 2rem;
     margin-top: 2rem;
     padding: 4rem max(var(--page-margin), 2vw) 0;
     background: var(--color-brand);
     color: #fff;
+  }
+  body:has(.journey) footer {
+    margin-top: 0;
+  }
+  /* Footer stays pinned behind the page and is uncovered on scroll. Off when it
+     could be taller than the screen, as its top would become unreachable. */
+  @media (min-height: 620px) and (max-aspect-ratio: 5 / 2) {
+    .shopify-section:has(> footer) {
+      position: sticky;
+      bottom: 0;
+      z-index: 0;
+    }
+    .shopify-section:not(:has(> footer)) {
+      z-index: 1;
+      background: var(--color-background);
+    }
+    .shopify-section:has(> .header) {
+      z-index: 2;
+      background: none;
+    }
   }
   footer a {
     text-decoration: none;
@@ -89,9 +111,6 @@
     flex-wrap: wrap;
     gap: 1rem;
   }
-  footer .footer__brand {
-    margin-block-start: clamp(6rem, 22vw, 22rem);
-  }
   footer .footer__brand svg {
     width: 100%;
   }
@@ -118,6 +137,16 @@
       "type": "url",
       "id": "youtube_url",
       "label": "t:labels.youtube"
+    },
+    {
+      "type": "url",
+      "id": "twitter_url",
+      "label": "t:labels.twitter"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "t:labels.facebook"
     },
     {
       "type": "checkbox",

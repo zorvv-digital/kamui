@@ -1,29 +1,12 @@
 <div id="our-journey" class="journey full-width">
+  {% # Placeholder: build this section here. Keep the id (footer "Our story" link) and .journey (footer spacing) %}
   <h2 class="journey__title">{{ 'sections.journey.title' | t }}</h2>
-
-  <div class="journey__grid">
-    <div class="journey__photo">
-      {% if section.settings.image %}
-        {{ section.settings.image | image_url: width: 1600 | image_tag: loading: 'lazy', sizes: '(max-width: 749px) 100vw, 50vw' }}
-      {% else %}
-        {% # Temporary dummy photo until the real one is picked in the theme editor %}
-        <img
-          src="{{ 'hero-mobile.webp' | asset_url }}"
-          alt="{{ 'sections.hero.image_alt' | t | escape }}"
-          width="1536"
-          height="1024"
-          loading="lazy"
-        >
-      {% endif %}
-    </div>
-
-    <div class="journey__story">{{ section.settings.story }}</div>
-  </div>
+  <div class="journey__placeholder"></div>
 </div>
 
 {% stylesheet %}
   .journey {
-    padding-block-start: 4rem;
+    padding: 4rem max(var(--page-margin), 2vw);
   }
   .journey__title {
     margin-block-end: 2rem;
@@ -32,50 +15,15 @@
     text-align: center;
     text-transform: uppercase;
   }
-  .journey__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .journey__photo {
-    aspect-ratio: 4 / 3;
-    background: #eee;
-  }
-  .journey__photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .journey__story {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
-    padding: 2rem max(var(--page-margin), 5vw);
-    font-size: 1.125rem;
-    line-height: 1.6;
-  }
-  @media (max-width: 749px) {
-    .journey__grid {
-      grid-template-columns: 1fr;
-    }
+  .journey__placeholder {
+    min-height: 20rem;
+    border: 1px dashed currentcolor;
   }
 {% endstylesheet %}
 
 {% schema %}
 {
   "name": "t:general.our_journey",
-  "settings": [
-    {
-      "type": "image_picker",
-      "id": "image",
-      "label": "t:labels.image"
-    },
-    {
-      "type": "richtext",
-      "id": "story",
-      "label": "t:labels.story"
-    }
-  ],
   "presets": [
     {
       "name": "t:general.our_journey"
