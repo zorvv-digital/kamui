@@ -1,0 +1,191 @@
+<div class="announcement full-width">{{ section.settings.announcement | escape }}</div>
+
+{% assign contact_url = section.settings.contact_url | default: '/pages/contact' %}
+
+<header class="header full-width">
+  <a class="header__contact" href="{{ contact_url }}">
+    <span aria-hidden="true">+</span>
+    {{ 'header.contact' | t }}
+  </a>
+
+  <a class="header__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+    {{ 'logo-kamui.svg' | inline_asset_content }}
+  </a>
+
+  <div class="header__icons">
+    <button type="button" class="header__icon" popovertarget="header-menu">
+      {{ 'icon-menu.svg' | inline_asset_content }}
+      <span class="header__label">{{ 'header.menu' | t }}</span>
+    </button>
+
+    <a class="header__icon" href="{{ routes.search_url }}">
+      {{ 'icon-search.svg' | inline_asset_content }}
+      <span class="header__label">{{ 'header.search' | t }}</span>
+    </a>
+
+    {% if shop.customer_accounts_enabled %}
+      <a class="header__icon" href="{{ routes.account_url }}">
+        {{ 'icon-account.svg' | inline_asset_content }}
+        <span class="header__label">{{ 'header.account' | t }}</span>
+      </a>
+    {% endif %}
+
+    <a class="header__icon" href="{{ routes.cart_url }}">
+      {% if cart.item_count > 0 %}
+        <sup>{{ cart.item_count }}</sup>
+      {% endif %}
+
+      {{ 'icon-cart.svg' | inline_asset_content }}
+      <span class="header__label">{{ 'header.cart' | t }}</span>
+    </a>
+  </div>
+
+  <nav id="header-menu" class="header__drawer" popover aria-label="{{ 'header.menu' | t }}">
+    <button type="button" popovertarget="header-menu" popovertargetaction="hide">
+      {{ 'header.close' | t }}
+    </button>
+
+    <ul>
+      {% for link in section.settings.menu.links %}
+        <li>{{ link.title | link_to: link.url }}</li>
+      {% endfor %}
+      <li><a href="{{ contact_url }}">{{ 'header.contact' | t }}</a></li>
+    </ul>
+  </nav>
+</header>
+
+{% stylesheet %}
+  :root {
+    --color-brand: #9f100c;
+    --announcement-height: 1.75rem;
+    --header-height: 6rem;
+  }
+  .announcement {
+    display: grid;
+    place-items: center;
+    min-height: var(--announcement-height);
+    background: var(--color-brand);
+    color: #fff;
+    font-size: 0.75rem;
+  }
+  .header {
+    --icon-stroke-width: 1.25;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    height: var(--header-height);
+    padding-inline: max(var(--page-margin), 3vw);
+    color: var(--color-foreground);
+  }
+  /* A hero slides underneath the header, see sections/hero.liquid */
+  body:has(.hero) .header {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+  }
+  .header a,
+  .header button {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .header__logo svg {
+    height: clamp(1.5rem, 2.6vw, 2.5rem);
+    width: auto;
+  }
+  .header__icons {
+    display: flex;
+    justify-self: end;
+    gap: 1.25rem;
+  }
+  .header .header__icon {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .header__icon svg {
+    width: 1.5rem;
+  }
+  .header__icon sup {
+    position: absolute;
+    top: -0.25rem;
+    left: calc(50% + 0.625rem);
+    font-size: 0.6875rem;
+  }
+  .header__label {
+    font-size: 0.6875rem;
+  }
+  .header__drawer {
+    inset: 0 0 0 auto;
+    width: min(24rem, 100%);
+    height: 100dvh;
+    margin: 0;
+    padding: 1.5rem;
+    border: 0;
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+  .header__drawer::backdrop {
+    background: rgb(0 0 0 / 0.5);
+  }
+  .header__drawer ul {
+    display: grid;
+    gap: 1rem;
+    margin-block-start: 2rem;
+    padding: 0;
+    list-style: none;
+    font-size: 1.25rem;
+  }
+  @media (max-width: 749px) {
+    :root {
+      --header-height: 4.5rem;
+    }
+    .header {
+      grid-template-columns: 1fr auto;
+    }
+    .header__contact {
+      display: none;
+    }
+    .header__icons {
+      gap: 1rem;
+    }
+    .header__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.header",
+  "settings": [
+    {
+      "type": "text",
+      "id": "announcement",
+      "label": "t:labels.announcement"
+    },
+    {
+      "type": "url",
+      "id": "contact_url",
+      "label": "t:labels.contact_link"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:labels.menu",
+      "default": "main-menu"
+    }
+  ]
+}
+{% endschema %}
