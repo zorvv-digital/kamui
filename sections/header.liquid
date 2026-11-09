@@ -1,4 +1,11 @@
-<div class="announcement full-width">{{ section.settings.announcement | escape }}</div>
+{% if section.settings.announcement != blank %}
+  <div class="announcement full-width">
+    <span>{{ section.settings.announcement | escape }}</span>
+    {% if section.settings.announcement_2 != blank %}
+      <span>{{ section.settings.announcement_2 | escape }}</span>
+    {% endif %}
+  </div>
+{% endif %}
 
 {% assign contact_url = section.settings.contact_url | default: '/pages/contact' %}
 
@@ -57,16 +64,20 @@
 {% stylesheet %}
   :root {
     --color-brand: #9f100c;
-    --announcement-height: 1.75rem;
     --header-height: 6rem;
   }
   .announcement {
-    display: grid;
-    place-items: center;
-    min-height: var(--announcement-height);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 clamp(1rem, 5vw, 4rem);
+    padding: 0.5rem;
     background: var(--color-brand);
     color: #fff;
     font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
   .header {
     --icon-stroke-width: 1.25;
@@ -174,6 +185,11 @@
       "type": "text",
       "id": "announcement",
       "label": "t:labels.announcement"
+    },
+    {
+      "type": "text",
+      "id": "announcement_2",
+      "label": "t:labels.announcement_2"
     },
     {
       "type": "url",

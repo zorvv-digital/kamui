@@ -1,0 +1,124 @@
+{% assign products = section.settings.collection.products | default: collections.all.products %}
+
+<ul class="products" aria-label="{{ 'sections.products.title' | t }}">
+  {% for product in products limit: 3 %}
+    <li>
+      <a href="{{ product.url }}">
+        <div class="products__image">
+          {% if product.featured_image %}
+            {{
+              product.featured_image
+              | image_url: width: 1200
+              | image_tag: loading: 'lazy', sizes: '(max-width: 749px) 100vw, 33vw'
+            }}
+            {% if product.images[1] %}
+              {{
+                product.images[1]
+                | image_url: width: 1200
+                | image_tag: class: 'products__image-hover', alt: '', loading: 'lazy', sizes: '(max-width: 749px) 100vw, 33vw'
+              }}
+            {% endif %}
+          {% endif %}
+        </div>
+        <p>{{ product.title | escape }}</p>
+        <p>{{ product.price | money_without_trailing_zeros }}</p>
+      </a>
+    </li>
+  {% else %}
+    {% # Temporary dummy photos until real products are added, list more file names here %}
+    {% assign dummy_images = 'product-dummy-1.webp,product-dummy-2.webp,product-dummy-3.webp' | split: ',' %}
+    {% assign dummy_names = 'sections.products.placeholder_names' | t | split: '|' %}
+    {% for i in (1..3) %}
+      {% assign dummy_image = dummy_images[forloop.index0] %}
+      <li>
+        <div class="products__image">
+          {% if dummy_image %}
+            <img src="{{ dummy_image | asset_url }}" alt="" width="1060" height="1484" loading="lazy">
+            <img
+              class="products__image-hover"
+              src="{{ dummy_image | replace: '.webp', '-back.webp' | asset_url }}"
+              alt=""
+              width="1060"
+              height="1484"
+              loading="lazy"
+            >
+          {% endif %}
+        </div>
+        <p>{{ dummy_names[forloop.index0] | escape }}</p>
+        <p>{{ 'sections.products.placeholder_price' | t }}</p>
+      </li>
+    {% endfor %}
+  {% endfor %}
+</ul>
+
+{% stylesheet %}
+  .products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    padding: 4rem 0;
+    list-style: none;
+  }
+  .products a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .products p {
+    font-size: 0.8125rem;
+    letter-spacing: 0.05em;
+  }
+  .products p:first-of-type {
+    margin-block-end: 0.25rem;
+    text-transform: uppercase;
+  }
+  .products__image {
+    position: relative;
+    aspect-ratio: 5 / 7;
+    margin-block-end: 0.75rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: #eee;
+  }
+  .products__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .products__image-hover {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .products a:focus-visible .products__image-hover {
+    opacity: 1;
+  }
+  @media (hover: hover) {
+    .products li:hover .products__image-hover {
+      opacity: 1;
+    }
+  }
+  @media (max-width: 749px) {
+    .products {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.products",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:labels.collection"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.products"
+    }
+  ]
+}
+{% endschema %}

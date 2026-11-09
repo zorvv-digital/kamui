@@ -11,10 +11,31 @@
   "sections": {
     "main": {
       "type": "hero",
+      "settings": {
+        "heading": "In the\nmaking.",
+        "heading_font": "anton_n4",
+        "subheading": "Drop 1 coming soon."
+      }
+    },
+    "products": {
+      "type": "products",
       "settings": {}
+    },
+    "subscribe": {
+      "type": "subscribe",
+      "settings": {}
+    },
+    "our_journey": {
+      "type": "our-journey",
+      "settings": {
+        "story": "<p>Kamui started with a simple idea: clothes should feel like a still from a film you can't stop thinking about.</p><p>Every piece is made in small runs, with heavy fabric, clean cuts and nothing extra. Our name goes on the chest. The rest is up to you.</p><p>We're still in the making. Drop 1 is the first chapter.</p>"
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "products",
+    "subscribe",
+    "our_journey"
   ]
 }

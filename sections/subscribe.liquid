@@ -1,0 +1,78 @@
+<div id="subscribe" class="subscribe full-width">
+  <p>{{ 'sections.subscribe.title' | t }}</p>
+
+  {% form 'customer', class: 'subscribe__form' %}
+    <input type="hidden" name="contact[tags]" value="newsletter,early-access">
+
+    {% if form.posted_successfully? %}
+      <p role="status">{{ 'sections.subscribe.success' | t }}</p>
+    {% else %}
+      <div class="subscribe__field">
+        <input
+          type="email"
+          name="contact[email]"
+          placeholder="{{ 'sections.subscribe.email' | t }}"
+          aria-label="{{ 'sections.subscribe.email' | t }}"
+          autocomplete="email"
+          required
+        >
+        <button type="submit" aria-label="{{ 'sections.subscribe.submit' | t }}">
+          <span aria-hidden="true">&rarr;</span>
+        </button>
+      </div>
+      {{ form.errors | default_errors }}
+    {% endif %}
+  {% endform %}
+</div>
+
+{% stylesheet %}
+  .subscribe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem var(--page-margin);
+    border-block: 1px solid rgb(0 0 0 / 0.15);
+    text-align: center;
+  }
+  .subscribe__form {
+    width: min(28rem, 100%);
+  }
+  .subscribe__field {
+    display: flex;
+    border: 1px solid currentcolor;
+    border-radius: var(--style-border-radius-inputs);
+  }
+  .subscribe__field:focus-within {
+    outline: 2px solid currentcolor;
+    outline-offset: 1px;
+  }
+  .subscribe__field input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.75rem 1rem;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: inherit;
+  }
+  .subscribe__field button {
+    padding-inline: 1rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.subscribe",
+  "presets": [
+    {
+      "name": "t:general.subscribe"
+    }
+  ]
+}
+{% endschema %}

@@ -1,39 +1,107 @@
-<footer>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
+<footer class="full-width">
+  <div class="footer__columns">
+    <a class="footer__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {{ 'logo-kamui.svg' | inline_asset_content }}
+    </a>
+
+    <div>
+      <p class="footer__heading">{{ 'footer.social' | t }}</p>
+      {% if section.settings.instagram_url != blank %}
+        <a href="{{ section.settings.instagram_url }}">{{ 'footer.instagram' | t }}</a>
+      {% endif %}
+      {% if section.settings.youtube_url != blank %}
+        <a href="{{ section.settings.youtube_url }}">{{ 'footer.youtube' | t }}</a>
+      {% endif %}
+    </div>
+
+    <div>
+      <a href="/pages/contact">{{ 'header.contact' | t }}</a>
+      <a href="/policies/privacy-policy">{{ 'footer.policies' | t }}</a>
+    </div>
+
+    <div>
+      <p class="footer__heading">{{ 'footer.about' | t }}</p>
+      <a href="{{ routes.root_url }}#our-journey">{{ 'footer.our_story' | t }}</a>
+      <a href="/blogs/news">{{ 'footer.blogs' | t }}</a>
+    </div>
   </div>
 
-  <div class="footer__links">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
+  <div class="footer__meta">
+    <div class="footer__copyright">
+      &copy;
+      {{ 'now' | date: '%Y' }}
+      {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
+    </div>
+
+    <div class="footer__payment">
+      {% if section.settings.show_payment_icons %}
+        {% for type in shop.enabled_payment_types %}
+          {{ type | payment_type_svg_tag }}
+        {% endfor %}
+      {% endif %}
+    </div>
   </div>
 
-  <div class="footer__payment">
-    {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
-    {% endif %}
-  </div>
+  <a class="footer__brand" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+    {{ 'logo-kamui.svg' | inline_asset_content }}
+  </a>
 </footer>
 
 {% stylesheet %}
   footer {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 4rem;
     margin-top: 2rem;
+    padding: 4rem max(var(--page-margin), 2vw) 0;
+    background: var(--color-brand);
+    color: #fff;
   }
   footer a {
     text-decoration: none;
-    color: var(--color-foreground);
+    color: inherit;
   }
-  footer .footer__links,
+  footer .footer__columns {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+  footer .footer__columns > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  footer .footer__heading {
+    margin-block-end: 0.5rem;
+    font-weight: 700;
+  }
+  footer .footer__logo svg {
+    width: 10rem;
+  }
+  footer .footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+  }
   footer .footer__payment {
     display: flex;
+    flex-wrap: wrap;
     gap: 1rem;
+  }
+  footer .footer__brand {
+    margin-block-start: clamp(6rem, 22vw, 22rem);
+  }
+  footer .footer__brand svg {
+    width: 100%;
+  }
+  @media (max-width: 749px) {
+    footer .footer__columns {
+      grid-template-columns: 1fr 1fr;
+    }
+    footer .footer__logo {
+      grid-column: 1 / -1;
+    }
   }
 {% endstylesheet %}
 
@@ -42,9 +110,14 @@
   "name": "t:general.footer",
   "settings": [
     {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
+      "type": "url",
+      "id": "instagram_url",
+      "label": "t:labels.instagram"
+    },
+    {
+      "type": "url",
+      "id": "youtube_url",
+      "label": "t:labels.youtube"
     },
     {
       "type": "checkbox",

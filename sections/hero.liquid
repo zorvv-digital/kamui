@@ -30,53 +30,44 @@
     </picture>
     <div class="hero__scrim"></div>
 
-    {% if section.settings.heading != blank %}
-      <h1 class="hero__heading">{{ section.settings.heading | escape }}</h1>
-    {% endif %}
-  </div>
-
-  <div class="hero__subscribe">
-    <p>{{ 'sections.hero.subscribe_title' | t }}</p>
-
-    {% form 'customer', class: 'hero__form' %}
-      <input type="hidden" name="contact[tags]" value="newsletter,early-access">
-
-      {% if form.posted_successfully? %}
-        <p role="status">{{ 'sections.hero.subscribed' | t }}</p>
-      {% else %}
-        <div class="hero__field">
-          <input
-            type="email"
-            name="contact[email]"
-            placeholder="{{ 'sections.hero.email' | t }}"
-            aria-label="{{ 'sections.hero.email' | t }}"
-            autocomplete="email"
-            required
-          >
-          <button type="submit" aria-label="{{ 'sections.hero.subscribe' | t }}">
-            <span aria-hidden="true">&rarr;</span>
-          </button>
-        </div>
-        {{ form.errors | default_errors }}
+    <div class="hero__copy">
+      {% if section.settings.heading != blank %}
+        <h1 class="hero__heading">{{ section.settings.heading | escape | newline_to_br }}</h1>
       {% endif %}
-    {% endform %}
+
+      {% if section.settings.subheading != blank %}
+        <p class="hero__subheading">{{ section.settings.subheading | escape }}</p>
+      {% endif %}
+
+      <a class="hero__cta" href="#subscribe">
+        {{- 'sections.hero.early_access' | t -}}
+      </a>
+    </div>
   </div>
 </div>
 
+{% style %}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+
+  .hero__heading,
+  .hero__subheading,
+  .hero__cta {
+    font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    font-style: {{ section.settings.heading_font.style }};
+    font-weight: {{ section.settings.heading_font.weight }};
+  }
+{% endstyle %}
+
 {% stylesheet %}
   .hero {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100svh - var(--announcement-height));
     margin-block-start: calc(-1 * var(--header-height));
   }
   .hero__media {
     position: relative;
-    flex: 1;
     display: flex;
-    align-items: center;
-    min-height: 24rem;
-    padding: var(--header-height) max(var(--page-margin), 3vw) 0;
+    align-items: flex-end;
+    min-height: 100svh;
+    padding: var(--header-height) max(var(--page-margin), 3vw) max(3.75rem, 6vw);
     overflow: hidden;
     background: var(--color-brand);
     color: #fff;
@@ -87,6 +78,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 80% center;
   }
   .hero__scrim {
     position: absolute;
@@ -94,57 +86,54 @@
     height: calc(var(--header-height) * 2);
     background: linear-gradient(rgb(0 0 0 / 0.45), transparent);
   }
-  .hero__heading {
+  /* Sized to stay in the empty left of the photo, clear of the figures */
+  .hero__copy {
     position: relative;
-    max-width: 14em;
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+  }
+  .hero__heading {
+    margin-inline-start: -0.02em;
+    font-size: clamp(6rem, 10.75vw, 18rem);
+    line-height: 1;
+    word-spacing: -0.1em;
     text-transform: uppercase;
-    text-wrap: balance;
   }
-  .hero__subscribe {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.25rem var(--page-margin);
-    border-block-end: 1px solid rgb(0 0 0 / 0.15);
-    text-align: center;
+  .hero__subheading {
+    margin-block-start: 0.5rem;
+    font-size: clamp(1rem, 1.5vw, 2.25rem);
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
-  .hero__form {
-    width: min(28rem, 100%);
-  }
-  .hero__field {
-    display: flex;
-    border: 1px solid currentcolor;
+  .hero__cta {
+    display: inline-block;
+    margin-block-start: 0.875rem;
+    padding: 0.5rem 1rem;
     border-radius: var(--style-border-radius-inputs);
+    background: var(--color-brand);
+    color: #fff;
+    font-size: clamp(0.8125rem, 0.875vw, 1.125rem);
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
   }
-  .hero__field:focus-within {
-    outline: 2px solid currentcolor;
-    outline-offset: 1px;
+  .hero__cta:hover {
+    background: #fff;
+    color: var(--color-brand);
   }
-  .hero__field input {
-    flex: 1;
-    min-width: 0;
-    padding: 0.75rem 1rem;
-    border: 0;
-    outline: 0;
-    background: none;
-    color: inherit;
-  }
-  .hero__field button {
-    padding-inline: 1rem;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-  }
+  /* The mobile crop has no empty side, so the copy sits on the figure */
   @media (max-width: 749px) {
-    .hero__media img {
-      object-position: 80% center;
+    .hero__heading {
+      font-size: 26vw;
+    }
+    .hero__scrim {
+      inset: 0;
+      height: auto;
+      background: linear-gradient(
+        rgb(0 0 0 / 0.45),
+        transparent calc(var(--header-height) * 2),
+        transparent 55%,
+        rgb(0 0 0 / 0.75)
+      );
     }
   }
 {% endstylesheet %}
@@ -164,9 +153,20 @@
       "label": "t:labels.image_mobile"
     },
     {
-      "type": "text",
+      "type": "textarea",
       "id": "heading",
       "label": "t:labels.heading"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "t:labels.heading_font",
+      "default": "anton_n4"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:labels.subheading"
     }
   ],
   "presets": [

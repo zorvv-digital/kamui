@@ -37,6 +37,15 @@
     "expires_on": "Expires on {{ expires_on }}",
     "use_at_checkout": "Use this gift card at checkout"
   },
+  "footer": {
+    "about": "We are Kamui.",
+    "blogs": "Blogs",
+    "instagram": "Instagram",
+    "our_story": "Our story",
+    "policies": "Policies",
+    "social": "Social",
+    "youtube": "YouTube"
+  },
   "header": {
     "account": "Account",
     "cart": "Cart",
@@ -59,11 +68,22 @@
   },
   "sections": {
     "hero": {
+      "early_access": "Get early access",
+      "image_alt": "Three men in vintage tailoring in a wood-panelled library"
+    },
+    "journey": {
+      "title": "Our journey"
+    },
+    "products": {
+      "title": "Products",
+      "placeholder_names": "Kamui. logo tee / White|Kamui. logo tee / Black|Kamui. logo tee / Crimson",
+      "placeholder_price": "Rs. 1,499"
+    },
+    "subscribe": {
       "email": "Email",
-      "image_alt": "Three men in vintage tailoring in a wood-panelled library",
-      "subscribe": "Subscribe",
-      "subscribe_title": "Subscribe for early access entry",
-      "subscribed": "You're on the list."
+      "submit": "Subscribe",
+      "success": "You're on the list.",
+      "title": "Subscribe for early access entry"
     }
   }
 }
