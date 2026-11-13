@@ -160,7 +160,7 @@
   .footer {
     --icon-stroke-width: 1.5;
     display: grid;
-    gap: clamp(2.5rem, 6vw, 4.5rem);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
     padding: 0 max(var(--page-margin), 3vw) clamp(1.5rem, 3vw, 2.5rem);
     background: var(--color-brand, #9f100c);
     color: #fff;
@@ -208,7 +208,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--space-5);
-    padding-block: clamp(2rem, 5vw, 3.5rem);
+    padding-block: clamp(1.5rem, 3vw, 2.5rem);
     border-block-end: 1px solid rgb(255 255 255 / 0.25);
   }
   .footer__signup-form {
@@ -294,6 +294,11 @@
     align-items: center;
     min-width: var(--tap-target);
     min-height: var(--tap-target);
+  }
+  @media (pointer: fine) {
+    .footer__column li a {
+      min-height: 2rem;
+    }
   }
   .footer__heading {
     color: rgb(255 255 255 / 0.75);
