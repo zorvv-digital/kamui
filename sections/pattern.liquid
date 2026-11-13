@@ -1,23 +1,37 @@
 <div id="pattern" class="pattern full-width">
-  {% # Placeholder: build this section here %}
+  {% # Placeholder until the pattern is confirmed %}
   <h2 class="pattern__title">{{ 'sections.pattern.title' | t }}</h2>
-  <div class="pattern__placeholder"></div>
+  <div class="pattern__placeholder">
+    {{ 'placeholder-scene.svg' | inline_asset_content }}
+  </div>
 </div>
 
 {% stylesheet %}
   .pattern {
-    padding: 4rem max(var(--page-margin), 2vw);
+    padding: clamp(2.5rem, 6vw, 5rem) max(var(--page-margin), 3vw);
+    border-block-start: 1px solid var(--color-rule);
   }
   .pattern__title {
-    margin-block-end: 2rem;
-    font-size: 1rem;
+    margin-block-end: clamp(1.5rem, 4vw, 3rem);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    font-weight: 400;
     letter-spacing: 0.08em;
     text-align: center;
     text-transform: uppercase;
   }
   .pattern__placeholder {
-    min-height: 20rem;
-    border: 1px dashed currentcolor;
+    aspect-ratio: 16 / 7;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .pattern__placeholder svg {
+    width: 100%;
+    height: 100%;
+  }
+  @media (max-width: 749px) {
+    .pattern__placeholder {
+      aspect-ratio: 4 / 5;
+    }
   }
 {% endstylesheet %}
 
