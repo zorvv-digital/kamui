@@ -13,25 +13,8 @@
   "sections": {
     "header": {
       "type": "header",
-      "blocks": {
-        "announcement_1": {
-          "type": "announcement",
-          "settings": {
-            "text": "Drop 01 is live",
-            "link": "shopify://collections/all"
-          }
-        },
-        "announcement_2": {
-          "type": "announcement",
-          "settings": {
-            "text": "Sale: selected tees up to 18% off"
-          }
-        }
-      },
-      "block_order": [
-        "announcement_1",
-        "announcement_2"
-      ],
+      "blocks": {},
+      "block_order": [],
       "settings": {}
     }
   },
