@@ -1,0 +1,26 @@
+<article class="main-page">
+  <h1 class="page-title">{{ page.title | escape }}</h1>
+  <div class="rte">{{ page.content }}</div>
+</article>
+
+{% stylesheet %}
+  .main-page {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--space-section);
+  }
+  .main-page .page-title {
+    text-align: center;
+  }
+  .main-page .rte {
+    width: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.page",
+  "settings": []
+}
+{% endschema %}

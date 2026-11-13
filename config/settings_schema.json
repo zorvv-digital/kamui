@@ -59,13 +59,13 @@
       {
         "type": "color",
         "id": "background_color",
-        "default": "#FFFFFF",
+        "default": "#FAF8F5",
         "label": "t:labels.background"
       },
       {
         "type": "color",
         "id": "foreground_color",
-        "default": "#333333",
+        "default": "#1C1917",
         "label": "t:labels.foreground"
       },
       {
@@ -76,7 +76,64 @@
         "step": 1,
         "unit": "px",
         "label": "t:labels.input_corner_radius",
-        "default": 4
+        "default": 0
+      }
+    ]
+  },
+  {
+    "name": "t:general.india_commerce",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "t:info.india_commerce"
+      },
+      {
+        "type": "text",
+        "id": "default_country_of_origin",
+        "label": "t:labels.default_country_of_origin",
+        "default": "India"
+      },
+      {
+        "type": "textarea",
+        "id": "default_manufacturer",
+        "label": "t:labels.default_manufacturer",
+        "info": "t:info.default_manufacturer"
+      },
+      {
+        "type": "textarea",
+        "id": "customer_care",
+        "label": "t:labels.customer_care",
+        "info": "t:info.customer_care"
+      },
+      {
+        "type": "textarea",
+        "id": "grievance_officer",
+        "label": "t:labels.grievance_officer",
+        "info": "t:info.grievance_officer"
+      },
+      {
+        "type": "text",
+        "id": "payment_methods_text",
+        "label": "t:labels.payment_methods_text",
+        "default": "UPI · Cards · Net banking · Cash on delivery"
+      },
+      {
+        "type": "text",
+        "id": "cod_note",
+        "label": "t:labels.cod_note",
+        "info": "t:info.cod_note"
+      },
+      {
+        "type": "text",
+        "id": "delivery_text",
+        "label": "t:labels.delivery_text",
+        "default": "Delivery in 3–7 days across India"
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "t:labels.free_shipping_threshold",
+        "info": "t:info.free_shipping_threshold"
       }
     ]
   }

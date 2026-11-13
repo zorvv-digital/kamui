@@ -1,0 +1,264 @@
+{% liquid
+  assign show_suggestions = true
+  if search.performed and search.results_count > 0
+    assign show_suggestions = false
+  endif
+  assign trending = section.settings.trending | split: ','
+%}
+
+<div class="search-page">
+  <header class="search-page__header">
+    <h1 class="page-title">{{ 'search.title' | t }}</h1>
+
+    <form class="search-page__form" action="{{ routes.search_url }}" method="get" role="search">
+      <label class="visually-hidden" for="SearchInput-{{ section.id }}">{{ 'search.label' | t }}</label>
+      {{ 'icon-search.svg' | inline_asset_content }}
+      <input
+        id="SearchInput-{{ section.id }}"
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="{{ 'search.placeholder' | t }}"
+        autocomplete="off"
+        autocapitalize="off"
+        enterkeyhint="search"
+        {% unless search.performed %}
+          autofocus
+        {% endunless %}
+      >
+      <input type="hidden" name="options[prefix]" value="last">
+      <button type="submit" class="search-page__submit">{{ 'search.submit' | t }}</button>
+    </form>
+
+    {% if search.performed %}
+      {% assign safe_terms = search.terms | escape %}
+      <p class="search-page__summary" role="status">
+        {% if search.results_count == 0 %}
+          {{ 'search.no_results_html' | t: terms: safe_terms }}
+          {{ 'search.tips' | t }}
+        {% else %}
+          {{ 'search.results_for_html' | t: count: search.results_count, terms: safe_terms }}
+        {% endif %}
+      </p>
+    {% endif %}
+
+    {% if show_suggestions and trending.size > 0 %}
+      <div class="search-page__trending">
+        <h2 class="eyebrow">{{ 'search.trending' | t }}</h2>
+        <ul role="list">
+          {% for term in trending %}
+            {% assign clean_term = term | strip %}
+            {% if clean_term == blank %}
+              {% continue %}
+            {% endif %}
+            <li>
+              <a href="{{ routes.search_url }}?q={{ clean_term | url_encode }}&amp;options%5Bprefix%5D=last">
+                {{- clean_term | escape -}}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </header>
+
+  {% if show_suggestions %}
+    {% if collections.all.products.size > 0 %}
+      <section class="search-page__group" aria-labelledby="SearchPopular">
+        <h2 id="SearchPopular" class="section-heading">{{ 'search.popular' | t }}</h2>
+        <ul class="product-grid" role="list">
+          {% for item in collections.all.products limit: 3 %}
+            <li>{% render 'product-card', product: item %}</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  {% else %}
+    {% paginate search.results by 24 %}
+      {% liquid
+        assign products = search.results | where: 'object_type', 'product'
+        assign found_articles = search.results | where: 'object_type', 'article'
+        assign found_pages = search.results | where: 'object_type', 'page'
+        assign others = found_articles | concat: found_pages
+      %}
+
+      {% if products.size > 0 %}
+        <section class="search-page__group" aria-labelledby="SearchProducts">
+          <h2 id="SearchProducts" class="section-heading">{{ 'search.products' | t }}</h2>
+          <ul class="product-grid" role="list">
+            {% for item in products %}
+              <li>{% render 'product-card', product: item %}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
+      {% if others.size > 0 %}
+        <section class="search-page__group" aria-labelledby="SearchOther">
+          <h2 id="SearchOther" class="section-heading">{{ 'search.other' | t }}</h2>
+          <ul class="search-page__list" role="list">
+            {% for item in others %}
+              <li>
+                <a href="{{ item.url }}">
+                  <span class="search-page__item-title">{{ item.title | escape }}</span>
+                  {% assign excerpt = item.excerpt | default: item.content | strip_html | truncatewords: 24 %}
+                  {% if excerpt != blank %}
+                    <span class="search-page__excerpt">{{ excerpt }}</span>
+                  {% endif %}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
+      {% render 'pagination', paginate: paginate %}
+    {% endpaginate %}
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .search-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    padding-block: var(--space-6) var(--space-section);
+  }
+  .search-page__header {
+    display: grid;
+    grid-template-columns: minmax(0, 48rem);
+    justify-content: center;
+    justify-items: center;
+    gap: var(--space-5);
+    text-align: center;
+  }
+  .search-page__form {
+    --icon-stroke-width: 1.25;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    border: 1px solid var(--color-foreground);
+    background: var(--color-background);
+  }
+  .search-page__form:focus-within {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+  .search-page__form > svg {
+    flex: none;
+    align-self: center;
+    width: 1.25rem;
+    margin-inline-start: var(--space-4);
+  }
+  .search-page__form input[type='search'] {
+    flex: 1;
+    min-width: 0;
+    min-height: 3.5rem;
+    padding-inline: var(--space-3);
+    border: 0;
+    outline: 0;
+    background: none;
+    font-size: var(--text-lg);
+  }
+  .search-page__form input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .search-page__form input::placeholder {
+    color: var(--color-muted);
+  }
+  .search-page__submit {
+    flex: none;
+    padding-inline: var(--space-5);
+    border: 0;
+    background: var(--color-foreground);
+    color: var(--color-background);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+  .search-page__submit:hover {
+    background: var(--color-brand, #9f100c);
+  }
+  .search-page__summary {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+  .search-page__trending {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3) var(--space-4);
+  }
+  .search-page__trending h2 {
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .search-page__trending ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .search-page__trending a {
+    display: flex;
+    align-items: center;
+    min-height: var(--tap-target);
+    padding-inline: var(--space-4);
+    border: 1px solid var(--color-foreground);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-caps);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  }
+  .search-page__trending a:hover {
+    background: var(--color-foreground);
+    color: var(--color-background);
+  }
+  .search-page__group + .search-page__group {
+    margin-block-start: var(--space-7);
+  }
+  .search-page__list {
+    display: grid;
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .search-page__list a {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-4);
+    border-block-end: 1px solid var(--color-rule);
+    text-decoration: none;
+  }
+  .search-page__item-title {
+    font-size: var(--text-lg);
+  }
+  .search-page__list a:hover .search-page__item-title {
+    text-decoration: underline;
+  }
+  .search-page__excerpt {
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.search",
+  "settings": [
+    {
+      "type": "text",
+      "id": "trending",
+      "label": "t:labels.trending_searches",
+      "info": "t:info.trending_searches",
+      "default": "Tees, Black, Red, White"
+    }
+  ]
+}
+{% endschema %}

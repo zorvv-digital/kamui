@@ -1,0 +1,49 @@
+{% doc %}
+  Renders accessible page navigation for a paginate object. Renders nothing when there is one page.
+
+  @param {object} paginate - The paginate object from a paginate tag
+  @param {string} [anchor] - Optional anchor appended to page links, without the #
+
+  @example
+  {% render 'pagination', paginate: paginate %}
+  {% render 'pagination', paginate: paginate, anchor: 'comments' %}
+{% enddoc %}
+
+{% liquid
+  assign hash = ''
+  if anchor
+    assign hash = '#' | append: anchor
+  endif
+%}
+
+{% if paginate.pages > 1 %}
+  <nav aria-label="{{ 'accessibility.pagination' | t }}">
+    <ul class="pagination" role="list">
+      {% if paginate.previous %}
+        <li>
+          <a href="{{ paginate.previous.url }}{{ hash }}" aria-label="{{ 'accessibility.previous' | t }}">&larr;</a>
+        </li>
+      {% endif %}
+
+      {% for part in paginate.parts %}
+        <li>
+          {% if part.is_link %}
+            <a href="{{ part.url }}{{ hash }}" aria-label="{{ 'accessibility.page' | t: number: part.title }}">
+              {{- part.title -}}
+            </a>
+          {% elsif part.title == paginate.current_page %}
+            <span aria-current="page">{{ part.title }}</span>
+          {% else %}
+            <span>{{ part.title }}</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+
+      {% if paginate.next %}
+        <li>
+          <a href="{{ paginate.next.url }}{{ hash }}" aria-label="{{ 'accessibility.next' | t }}">&rarr;</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}

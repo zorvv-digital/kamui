@@ -1,0 +1,102 @@
+{% paginate blog.articles by 9 %}
+  <div class="blog">
+    <h1 class="page-title">{{ blog.title | escape }}</h1>
+
+    {% if blog.articles.size > 0 %}
+      <ul class="blog__grid" role="list">
+        {% for article in blog.articles %}
+          <li>
+            <a class="article-card" href="{{ article.url }}">
+              <div class="article-card__media">
+                {% if article.image %}
+                  {{
+                    article.image
+                    | image_url: width: 1200
+                    | image_tag: loading: 'lazy', widths: '400, 600, 900, 1200', sizes: '(min-width: 750px) 33vw, 100vw'
+                  }}
+                {% else %}
+                  {{ 'placeholder-scene.svg' | inline_asset_content }}
+                {% endif %}
+              </div>
+              <p class="eyebrow article-card__date">{{ article.published_at | time_tag: format: 'date' }}</p>
+              <h2 class="article-card__title">{{ article.title | escape }}</h2>
+              {% if article.excerpt_or_content != blank %}
+                <p class="article-card__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 28 }}</p>
+              {% endif %}
+              <span class="article-card__more">{{ 'blog.read_more' | t }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      {% render 'pagination', paginate: paginate %}
+    {% else %}
+      <p class="blog__empty">{{ 'blog.empty' | t }}</p>
+    {% endif %}
+  </div>
+{% endpaginate %}
+
+{% stylesheet %}
+  .blog {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--space-section);
+  }
+  .blog > .page-title,
+  .blog__empty {
+    text-align: center;
+  }
+  .blog__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+    gap: var(--space-7) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .article-card {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    text-decoration: none;
+  }
+  .article-card__media {
+    aspect-ratio: 3 / 2;
+    margin-block-end: var(--space-2);
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+  .article-card__media :is(img, svg) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.6s var(--ease-out);
+  }
+  .article-card__date,
+  .article-card__excerpt {
+    color: var(--color-muted);
+  }
+  .article-card__title {
+    font-size: var(--text-lg);
+    font-weight: 500;
+  }
+  .article-card__excerpt {
+    font-size: var(--text-sm);
+  }
+  .article-card__more {
+    font-size: var(--text-sm);
+    text-decoration: underline;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .article-card:hover :is(img, svg) {
+      scale: 1.03;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.blog",
+  "settings": []
+}
+{% endschema %}

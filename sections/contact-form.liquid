@@ -1,0 +1,114 @@
+<div class="contact">
+  {% form 'contact', id: 'ContactForm', class: 'contact__form' %}
+    {% if form.posted_successfully? %}
+      <p class="contact__success" role="status">{{ 'contact.success' | t }}</p>
+    {% else %}
+      <h2 class="section-heading">{{ 'contact.title' | t }}</h2>
+
+      {% if form.errors %}
+        <div class="contact__errors" role="alert">{{ form.errors | default_errors }}</div>
+      {% endif %}
+
+      <div class="contact__row">
+        <div class="field">
+          <label for="ContactName">{{ 'contact.name' | t }}</label>
+          <input id="ContactName" type="text" name="contact[name]" value="{{ form.name }}" autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="ContactEmail">{{ 'contact.email' | t }} <span aria-hidden="true">*</span></label>
+          <input
+            id="ContactEmail"
+            type="email"
+            name="contact[email]"
+            value="{{ form.email }}"
+            autocomplete="email"
+            spellcheck="false"
+            required
+            {% if form.errors contains 'email' %}
+              aria-invalid="true"
+            {% endif %}
+          >
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="ContactPhone">{{ 'contact.phone' | t }}</label>
+        <input
+          id="ContactPhone"
+          type="tel"
+          name="contact[phone]"
+          value="{{ form.phone }}"
+          autocomplete="tel"
+          inputmode="tel"
+          pattern="(\+?91)? ?0?[6-9][0-9]{9}"
+          aria-describedby="ContactPhoneHint"
+        >
+        <p id="ContactPhoneHint" class="field__hint">{{ 'contact.phone_hint' | t }}</p>
+      </div>
+
+      <div class="field">
+        <label for="ContactBody">{{ 'contact.message' | t }} <span aria-hidden="true">*</span></label>
+        <textarea id="ContactBody" name="contact[body]" rows="6" required>{{ form.body }}</textarea>
+      </div>
+
+      <button type="submit" class="button button--primary contact__submit">{{ 'contact.send' | t }}</button>
+    {% endif %}
+  {% endform %}
+</div>
+
+{% stylesheet %}
+  .contact {
+    display: grid;
+    justify-items: center;
+    padding-block-end: var(--space-section);
+  }
+  .contact__form {
+    display: grid;
+    gap: var(--space-4);
+    width: min(40rem, 100%);
+  }
+  .contact__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  .contact__errors,
+  .contact__success {
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    font-size: var(--text-sm);
+  }
+  .contact__errors {
+    border: 1px solid var(--color-brand, #9f100c);
+    color: var(--color-brand, #9f100c);
+  }
+  .contact__errors ul {
+    margin: 0;
+    padding-inline-start: 1.25em;
+  }
+  .contact__success {
+    border: 1px solid var(--color-rule);
+    text-align: center;
+  }
+  .contact__submit {
+    justify-self: start;
+    min-width: 12rem;
+  }
+  @media (max-width: 749px) {
+    .contact__row {
+      grid-template-columns: 1fr;
+    }
+    .contact__submit {
+      justify-self: stretch;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.contact_form",
+  "settings": [],
+  "presets": [{ "name": "t:general.contact_form" }]
+}
+{% endschema %}

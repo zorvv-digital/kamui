@@ -1,23 +1,90 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "404": {
-    "title": "404",
-    "not_found": "Page not found.",
-    "back_to_shopping": "Back to shopping"
+    "title": "Page not found",
+    "not_found": "The page you were looking for doesn't exist or has moved.",
+    "back_to_shopping": "Continue shopping"
+  },
+  "accessibility": {
+    "skip_to_content": "Skip to content",
+    "close": "Close",
+    "decrease": "Decrease quantity for {{ title }}",
+    "increase": "Increase quantity for {{ title }}",
+    "pagination": "Pagination",
+    "previous": "Previous page",
+    "next": "Next page",
+    "page": "Page {{ number }}",
+    "new_window": "Opens in a new tab"
   },
   "blog": {
     "article_comments": "Comments",
     "article_metadata_html": "{{ date }} by {{ author }}",
+    "back": "Back to {{ title }}",
+    "comment_awaiting": "Your comment was posted and is awaiting approval.",
+    "comment_posted": "Your comment was posted.",
     "comment_form_body": "Comment",
     "comment_form_email": "Email",
     "comment_form_name": "Name",
-    "comment_form_submit": "Post",
-    "comment_form_title": "Add a comment"
+    "comment_form_submit": "Post comment",
+    "comment_form_title": "Add a comment",
+    "empty": "No articles yet.",
+    "read_more": "Read more"
   },
   "cart": {
-    "checkout": "Checkout",
+    "checkout": "Check out",
+    "continue": "Continue shopping",
+    "discounts": "Discounts",
+    "empty": "Your cart is empty",
+    "free_shipping_remaining": "Add {{ amount }} more for free shipping",
+    "free_shipping_unlocked": "You've unlocked free shipping",
+    "note": "Order note",
+    "remove": "Remove",
+    "remove_item": "Remove {{ title }}",
+    "subtotal": "Subtotal",
+    "taxes_note": "Prices include all taxes. Shipping and any cash on delivery fee are shown before you pay.",
     "title": "Cart",
+    "total": "Total",
     "update": "Update",
-    "remove": "Remove"
+    "item_count": {
+      "one": "{{ count }} item",
+      "other": "{{ count }} items"
+    }
+  },
+  "collections": {
+    "apply": "Apply",
+    "clear_all": "Clear all",
+    "empty": "No products here yet.",
+    "empty_filtered": "No products match these filters.",
+    "filter": "Filter",
+    "price_from": "From",
+    "price_to": "To",
+    "remove_filter": "Remove filter: {{ label }}",
+    "show_results": "Show results",
+    "sort": "Sort by",
+    "title": "Collections",
+    "view_all": "View all products",
+    "product_count": {
+      "one": "{{ count }} product",
+      "other": "{{ count }} products"
+    }
+  },
+  "contact": {
+    "email": "Email",
+    "message": "Message",
+    "name": "Name",
+    "phone": "Phone",
+    "phone_hint": "10-digit mobile number, with or without +91",
+    "send": "Send message",
+    "success": "Thanks, we'll get back to you soon.",
+    "title": "Send us a message"
   },
   "customers": {
     "login": {
@@ -27,8 +94,24 @@
       "title": "Login"
     }
   },
-  "collections": {
-    "title": "Collections"
+  "footer": {
+    "blogs": "Blogs",
+    "contact": "Contact us",
+    "copyright": "All rights reserved.",
+    "customer_care": "Customer care",
+    "email": "Email",
+    "grievance": "Grievance officer",
+    "help": "Help",
+    "instagram": "Instagram",
+    "our_story": "Our story",
+    "payment_methods": "Payment methods",
+    "policies": "Policies",
+    "shop": "Shop",
+    "social": "Social",
+    "subscribe": "Subscribe",
+    "subscribe_title": "Subscribe to our emails",
+    "subscribed": "You're subscribed.",
+    "youtube": "YouTube"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -39,31 +122,91 @@
   },
   "header": {
     "account": "Account",
+    "announcements": "Announcements",
     "cart": "Cart",
     "close": "Close",
+    "collections": "Collections",
     "contact": "Contact us",
     "menu": "Menu",
-    "search": "Search"
+    "search": "Search",
+    "shop_all": "Shop all"
   },
   "password": {
-    "title": "This shop is private",
+    "enter": "Enter",
+    "enter_using_password": "Enter using password",
     "password": "Password",
-    "enter": "Enter"
+    "title": "Opening soon"
+  },
+  "products": {
+    "add_to_cart": "Add to cart",
+    "age_range": "Age",
+    "country_of_origin": "Country of origin",
+    "customer_care": "Customer care",
+    "delivery": "Delivery",
+    "description": "Description",
+    "details": "Details",
+    "dimensions": "Size",
+    "gallery": "Product images",
+    "importer": "Importer",
+    "inclusive_taxes": "Inclusive of all taxes",
+    "legal": "Legal information",
+    "manufacturer": "Manufacturer",
+    "media_position": "{{ current }} / {{ total }}",
+    "mrp": "MRP",
+    "net_quantity": "Net quantity",
+    "packer": "Packer",
+    "piece_count": "Pieces",
+    "price_from": "From {{ price }}",
+    "quantity": "Quantity",
+    "related": "You may also like",
+    "returns": "Easy returns.",
+    "returns_link": "Read the return policy",
+    "sale": "Sale",
+    "sale_price": "Sale price",
+    "save": "{{ percent }}% off",
+    "shipping_returns": "Shipping and returns",
+    "sold_out": "Sold out",
+    "unavailable": "Unavailable"
   },
   "search": {
-    "title": "Search",
-    "placeholder": "Search articles, pages, or products",
+    "label": "Search the store",
+    "no_results_html": "No results for “{{ terms }}”",
+    "other": "Articles and pages",
+    "placeholder": "Search tees, drops, colours",
+    "popular": "Popular right now",
+    "products": "Products",
+    "results_for_html": "{{ count }} results for “{{ terms }}”",
     "submit": "Search",
-    "no_results_html": "No results found for {{ terms }}",
-    "results_for_html": "{{ count }} results found for {{ terms }}"
+    "suggestions": {
+      "one": "1 product found",
+      "other": "{{ count }} products found"
+    },
+    "tips": "Check the spelling, or try a shorter word like “tee”.",
+    "title": "Search",
+    "trending": "Trending",
+    "view_all_html": "Search for “{{ terms }}”"
   },
   "sections": {
+    "featured_products": {
+      "placeholder_title": "Product name",
+      "price_from": "From {{ price }}"
+    },
     "hero": {
       "email": "Email",
       "image_alt": "Three men in vintage tailoring in a wood-panelled library",
       "subscribe": "Subscribe",
       "subscribe_title": "Subscribe for early access entry",
       "subscribed": "You're on the list."
+    },
+    "puzzle": {
+      "board": "Sliding puzzle",
+      "instructions": "Tap or drag a tile next to the gap to slide it. Arrow keys work too.",
+      "shuffle": "Shuffle",
+      "tile": "Tile {{ number }}",
+      "solved": {
+        "one": "Solved in {{ count }} move",
+        "other": "Solved in {{ count }} moves"
+      }
     }
   }
 }

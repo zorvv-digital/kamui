@@ -12,9 +12,50 @@
     "main": {
       "type": "hero",
       "settings": {}
+    },
+    "featured_products": {
+      "type": "featured-products",
+      "settings": {
+        "limit": 3
+      }
+    },
+    "collection_tiles": {
+      "type": "collection-tiles",
+      "blocks": {
+        "tile_1": {
+          "type": "tile",
+          "settings": {}
+        },
+        "tile_2": {
+          "type": "tile",
+          "settings": {}
+        },
+        "tile_3": {
+          "type": "tile",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2",
+        "tile_3"
+      ],
+      "settings": {}
+    },
+    "puzzle": {
+      "type": "puzzle",
+      "settings": {}
+    },
+    "journey": {
+      "type": "journey",
+      "settings": {}
     }
   },
   "order": [
-    "main"
+    "main",
+    "featured_products",
+    "collection_tiles",
+    "puzzle",
+    "journey"
   ]
 }

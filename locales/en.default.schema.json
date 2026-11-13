@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "general": {
     "404": "Not found",
@@ -8,22 +17,27 @@
     "collection": "Collection",
     "collections": "Collections",
     "collection_card": "Collection card",
+    "collection_tiles": "Collection tiles",
     "collections_grid": "Collections grid",
     "colors": "Colors",
     "column": "Column",
+    "contact_form": "Contact form",
     "content": "Content",
-    "custom_section": "Custom section",
+    "featured_products": "Featured products",
     "fonts": "Fonts",
     "footer": "Footer",
     "group": "Group",
     "header": "Header",
     "hero": "Hero",
+    "india_commerce": "India commerce",
+    "journey": "Our journey",
     "layout": "Layout",
     "main": "Main",
     "page": "Page",
     "password": "Password",
     "primary": "Primary",
     "product": "Product",
+    "puzzle": "Puzzle",
     "row": "Row",
     "search": "Search",
     "secondary": "Secondary",
@@ -34,26 +48,56 @@
     "theme": "Theme",
     "typography": "Typography"
   },
+  "info": {
+    "announcement": "For example a sale or a drop date. Add more announcements to make the strip scroll.",
+    "cod_note": "Shown on product pages and in the cart before checkout. For example: Cash on delivery available, ₹49 fee.",
+    "customer_care": "Phone, email, and address customers can use for complaints. Shown in the footer and on product pages.",
+    "default_manufacturer": "Name and full address. Used when a product has no custom.manufacturer metafield.",
+    "free_shipping_threshold": "Order value in rupees. Leave empty to hide the progress bar in the cart.",
+    "grievance_officer": "Name, designation, and contact details. Shown in the footer.",
+    "india_commerce": "Shown on product pages, the cart, and the footer. Product metafields in the custom namespace (country_of_origin, manufacturer, packer, importer, net_quantity) override these defaults.",
+    "trending_searches": "Search terms separated by commas. Shown as shortcuts on the search page."
+  },
   "labels": {
     "alignment": "Alignment",
     "announcement": "Announcement",
     "background": "Background",
+    "blog_link": "Blog link",
+    "cod_note": "Cash on delivery note",
+    "collection": "Collection",
     "contact_link": "Contact link",
+    "customer_care": "Customer care details",
+    "default_country_of_origin": "Default country of origin",
+    "default_manufacturer": "Default manufacturer, packer, or importer",
+    "delivery_text": "Delivery time text",
     "foreground": "Foreground",
+    "free_shipping_threshold": "Free shipping threshold",
     "grid_gap": "Grid spacing",
     "grid_item_width": "Grid item width",
+    "grid_size": "Grid size",
+    "grievance_officer": "Grievance officer",
     "heading": "Heading",
     "image": "Image",
     "image_mobile": "Mobile image",
     "input_corner_radius": "Input corner radius",
+    "instagram_link": "Instagram link",
+    "label": "Label",
     "layout_direction": "Layout direction",
+    "link": "Link",
     "menu": "Menu",
+    "menu_products": "Products shown in the menu",
+    "our_story_link": "Our story link",
     "padding": "Padding",
     "page_margin": "Page margin",
     "page_width": "Page width",
-    "show_payment_icons": "Show payment icons",
+    "payment_methods_text": "Payment methods text",
+    "products_to_show": "Products to show",
+    "show_related": "Show related products",
+    "story": "Story",
+    "text": "Text",
     "text_style": "Text style",
-    "text": "Text"
+    "trending_searches": "Trending searches",
+    "youtube_link": "YouTube link"
   },
   "options": {
     "alignment": {
@@ -64,6 +108,10 @@
     "direction": {
       "horizontal": "Horizontal",
       "vertical": "Vertical"
+    },
+    "grid_size": {
+      "three": "3 × 3",
+      "four": "4 × 4"
     },
     "page_width": {
       "narrow": "Narrow",
@@ -77,6 +125,6 @@
       "title": "Title",
       "subtitle": "Subtitle",
       "normal": "Normal text"
-    },
+    }
   }
 }

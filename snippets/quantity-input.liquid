@@ -1,0 +1,103 @@
+{% doc %}
+  Renders a number input with decrease and increase buttons. Without JavaScript it is a plain number field.
+  The caller renders the visible label, pointing its `for` at `id`.
+
+  @param {string} id - The input id
+  @param {string} title - Item name used in the button labels
+  @param {string} [name] - The input name, defaults to "quantity"
+  @param {number} [value] - The starting value, defaults to 1
+  @param {number} [min] - The minimum value, defaults to 1
+  @param {string} [form] - The id of the form the input belongs to
+
+  @example
+  <label for="Quantity-{{ section.id }}">{{ 'products.quantity' | t }}</label>
+  {% render 'quantity-input', id: 'Quantity-main', title: product.title, form: 'ProductForm-main' %}
+{% enddoc %}
+
+{% liquid
+  assign name = name | default: 'quantity'
+  assign value = value | default: 1
+  assign min = min | default: 1
+%}
+
+<quantity-input class="quantity-input">
+  <button
+    type="button"
+    class="quantity-input__button"
+    data-step="-1"
+    aria-label="{{ 'accessibility.decrease' | t: title: title | escape }}"
+    hidden
+  >
+    <span aria-hidden="true">&minus;</span>
+  </button>
+  <input
+    type="number"
+    id="{{ id }}"
+    name="{{ name }}"
+    value="{{ value }}"
+    min="{{ min }}"
+    inputmode="numeric"
+    {% if form %}
+      form="{{ form }}"
+    {% endif %}
+  >
+  <button
+    type="button"
+    class="quantity-input__button"
+    data-step="1"
+    aria-label="{{ 'accessibility.increase' | t: title: title | escape }}"
+    hidden
+  >
+    <span aria-hidden="true">+</span>
+  </button>
+</quantity-input>
+
+{% stylesheet %}
+  .quantity-input {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--style-border-radius-inputs);
+  }
+  .quantity-input__button {
+    width: var(--tap-target);
+    min-height: var(--tap-target);
+    border: 0;
+    background: none;
+    font-size: var(--text-lg);
+  }
+  .quantity-input__button:hover {
+    background: var(--color-surface);
+  }
+  .quantity-input input {
+    width: 3.5rem;
+    padding-inline: 0;
+    border: 0;
+    text-align: center;
+    -moz-appearance: textfield;
+  }
+  .quantity-input input::-webkit-inner-spin-button,
+  .quantity-input input::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  class QuantityInput extends HTMLElement {
+    connectedCallback() {
+      const input = this.querySelector('input');
+
+      this.querySelectorAll('button[data-step]').forEach((button) => {
+        button.hidden = false;
+        button.addEventListener('click', () => {
+          if (button.dataset.step === '1') input.stepUp();
+          else input.stepDown();
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      });
+    }
+  }
+
+  if (!customElements.get('quantity-input')) customElements.define('quantity-input', QuantityInput);
+{% endjavascript %}

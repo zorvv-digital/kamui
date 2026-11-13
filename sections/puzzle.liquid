@@ -1,0 +1,385 @@
+{% liquid
+  assign image_src = 'hero-mobile.webp' | asset_url
+  if section.settings.image
+    assign image_src = section.settings.image | image_url: width: 1200, height: 1200, crop: 'center'
+  endif
+  assign size = section.settings.grid_size | plus: 0
+  assign instructions_id = 'PuzzleInstructions-' | append: section.id
+%}
+
+<div class="puzzle full-width" data-puzzle>
+  <p class="visually-hidden" id="{{ instructions_id }}">{{ 'sections.puzzle.instructions' | t }}</p>
+  <p
+    class="visually-hidden"
+    aria-live="polite"
+    data-status
+    data-solved-one="{{ 'sections.puzzle.solved' | t: count: 1 }}"
+    data-solved-other="{{ 'sections.puzzle.solved' | t: count: 0 }}"
+  ></p>
+
+  <div class="puzzle__inner">
+  <kamui-puzzle
+    class="puzzle__stage"
+    data-size="{{ size }}"
+    data-image="{{ image_src }}"
+    data-board-label="{{ 'sections.puzzle.board' | t }}"
+    data-tile-label="{{ 'sections.puzzle.tile' | t: number: '__N__' }}"
+    data-instructions="{{ instructions_id }}"
+  >
+    <figure class="puzzle__figure">
+      <img src="{{ image_src }}" alt="" width="1200" height="1200" loading="lazy">
+    </figure>
+  </kamui-puzzle>
+
+    {% comment %} The small picture is the goal: what the board looks like when solved. {% endcomment %}
+    <div class="puzzle__side">
+      <img class="puzzle__preview" src="{{ image_src }}" alt="" width="240" height="240" loading="lazy">
+      <button type="button" class="button puzzle__shuffle" data-shuffle hidden>
+        {{ 'sections.puzzle.shuffle' | t }}
+      </button>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .puzzle {
+    padding: var(--space-section) var(--page-margin);
+    border-block: 1px solid var(--color-rule);
+    background: var(--color-surface);
+  }
+  .puzzle__inner {
+    --frame: var(--space-3);
+    --shadow: var(--space-3);
+    display: grid;
+    grid-template-columns: minmax(0, 34rem) auto;
+    align-items: end;
+    justify-content: center;
+    gap: calc(var(--space-6) + var(--shadow));
+  }
+  .puzzle__stage {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    border: 1px solid var(--color-foreground);
+    background: var(--color-background);
+    box-shadow: var(--shadow) var(--shadow) 0 var(--color-foreground);
+  }
+  .puzzle__side {
+    display: grid;
+    gap: var(--space-4);
+    width: 9rem;
+  }
+  .puzzle__preview {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--color-foreground);
+  }
+  .puzzle:not(.is-playing) .puzzle__preview {
+    visibility: hidden;
+  }
+  .puzzle__shuffle {
+    background: var(--color-background);
+  }
+  .puzzle__shuffle:hover {
+    background: var(--color-foreground);
+    color: var(--color-background);
+  }
+  @media (max-width: 749px) {
+    .puzzle__inner {
+      --frame: var(--space-2);
+      --shadow: var(--space-2);
+      grid-template-columns: minmax(0, 1fr);
+      gap: calc(var(--space-5) + var(--shadow));
+      padding-inline-end: var(--shadow);
+    }
+    .puzzle__side {
+      grid-template-columns: 5rem 1fr;
+      align-items: stretch;
+      width: auto;
+    }
+  }
+  .puzzle__figure {
+    position: absolute;
+    inset: var(--frame);
+    margin: 0;
+    overflow: hidden;
+    background: var(--color-surface);
+  }
+  .puzzle__figure img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  .puzzle.is-playing .puzzle__figure img {
+    opacity: 0.12;
+  }
+  .puzzle.is-solved .puzzle__figure img {
+    opacity: 1;
+  }
+  .puzzle__board {
+    position: absolute;
+    inset: var(--frame);
+    overflow: hidden;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  .puzzle__board:focus-visible {
+    outline-offset: 4px;
+  }
+  .puzzle.is-solved .puzzle__board {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .puzzle__tile {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% / var(--size));
+    height: calc(100% / var(--size));
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    background: none;
+    box-shadow: inset 0 0 0 1px var(--color-background);
+    translate: calc(var(--x) * 100%) calc(var(--y) * 100%);
+    transition: translate 180ms var(--ease-out), filter var(--duration-fast) var(--ease-out);
+    touch-action: none;
+    cursor: pointer;
+  }
+  .puzzle__tile img {
+    position: absolute;
+    top: calc(var(--row) * -100%);
+    left: calc(var(--col) * -100%);
+    width: calc(var(--size) * 100%);
+    max-width: none;
+    height: calc(var(--size) * 100%);
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+  }
+  .puzzle__board.is-instant .puzzle__tile {
+    transition: none;
+  }
+  .puzzle__tile.is-movable:hover {
+    filter: brightness(1.08);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  class KamuiPuzzle extends HTMLElement {
+    connectedCallback() {
+      this.size = Number(this.dataset.size) || 3;
+      this.section = this.closest('[data-puzzle]');
+
+      if (!('IntersectionObserver' in window)) {
+        this.build();
+        return;
+      }
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          this.observer.disconnect();
+          this.build();
+        },
+        { rootMargin: '200px' }
+      );
+      this.observer.observe(this);
+    }
+
+    disconnectedCallback() {
+      this.observer?.disconnect();
+    }
+
+    build() {
+      const n = this.size;
+      const count = n * n;
+      this.status = this.section.querySelector('[data-status]');
+      this.board = document.createElement('div');
+      this.board.className = 'puzzle__board';
+      this.board.tabIndex = 0;
+      this.board.setAttribute('role', 'group');
+      this.board.setAttribute('aria-label', this.dataset.boardLabel);
+      this.board.setAttribute('aria-describedby', this.dataset.instructions);
+      this.board.style.setProperty('--size', n);
+
+      this.tiles = [];
+      for (let i = 0; i < count - 1; i++) {
+        const tile = document.createElement('button');
+        tile.type = 'button';
+        tile.className = 'puzzle__tile';
+        tile.tabIndex = -1;
+        tile.dataset.tile = i;
+        tile.setAttribute('aria-label', this.dataset.tileLabel.replace('__N__', i + 1));
+        tile.style.setProperty('--col', i % n);
+        tile.style.setProperty('--row', Math.floor(i / n));
+        const img = document.createElement('img');
+        img.src = this.dataset.image;
+        img.alt = '';
+        img.draggable = false;
+        tile.append(img);
+        this.tiles.push(tile);
+        this.board.append(tile);
+      }
+      this.append(this.board);
+
+      this.board.addEventListener('click', (event) => this.onClick(event));
+      this.board.addEventListener('keydown', (event) => this.onKey(event));
+      this.board.addEventListener('pointerdown', (event) => this.onPointerDown(event));
+      this.board.addEventListener('pointerup', (event) => this.onPointerUp(event));
+      const shuffle = this.section.querySelector('[data-shuffle]');
+      shuffle.hidden = false;
+      shuffle.addEventListener('click', () => this.shuffle());
+      this.section.classList.add('is-playing');
+      this.board.classList.add('is-instant');
+      this.shuffle();
+      requestAnimationFrame(() => requestAnimationFrame(() => this.board.classList.remove('is-instant')));
+    }
+
+    get empty() {
+      return this.cells.indexOf(this.cells.length - 1);
+    }
+
+    neighbours(cell) {
+      const n = this.size;
+      const x = cell % n;
+      const y = Math.floor(cell / n);
+      const result = [];
+      if (x > 0) result.push(cell - 1);
+      if (x < n - 1) result.push(cell + 1);
+      if (y > 0) result.push(cell - n);
+      if (y < n - 1) result.push(cell + n);
+      return result;
+    }
+
+    swap(cell) {
+      const empty = this.empty;
+      [this.cells[cell], this.cells[empty]] = [this.cells[empty], this.cells[cell]];
+    }
+
+    shuffle() {
+      const count = this.size * this.size;
+      this.cells = Array.from({ length: count }, (_, index) => index);
+      let previous = -1;
+      for (let step = 0; step < 150 || this.isSolved(); step++) {
+        const empty = this.empty;
+        const options = this.neighbours(empty).filter((cell) => cell !== previous);
+        previous = empty;
+        this.swap(options[Math.floor(Math.random() * options.length)]);
+      }
+      this.moves = 0;
+      this.solved = false;
+      this.status.textContent = '';
+      this.section.classList.remove('is-solved');
+      this.render();
+    }
+
+    isSolved() {
+      return this.cells.every((tile, cell) => tile === cell);
+    }
+
+    move(cell) {
+      if (this.solved || !this.neighbours(this.empty).includes(cell)) return;
+      this.swap(cell);
+      this.moves += 1;
+      if (this.isSolved()) {
+        this.solved = true;
+        this.section.classList.add('is-solved');
+        const template = this.moves === 1 ? this.status.dataset.solvedOne : this.status.dataset.solvedOther;
+        this.status.textContent = template.replace(/\d+/, this.moves);
+      }
+      this.render();
+    }
+
+    render() {
+      const n = this.size;
+      const movable = this.neighbours(this.empty);
+      this.cells.forEach((tileIndex, cell) => {
+        const tile = this.tiles[tileIndex];
+        if (!tile) return;
+        tile.style.setProperty('--x', cell % n);
+        tile.style.setProperty('--y', Math.floor(cell / n));
+        tile.classList.toggle('is-movable', movable.includes(cell));
+      });
+    }
+
+    cellOf(tile) {
+      return this.cells.indexOf(Number(tile.dataset.tile));
+    }
+
+    onClick(event) {
+      const tile = event.target.closest('.puzzle__tile');
+      if (!tile || this.swiped) {
+        this.swiped = false;
+        return;
+      }
+      this.move(this.cellOf(tile));
+    }
+
+    onKey(event) {
+      const n = this.size;
+      const empty = this.empty;
+      const x = empty % n;
+      const y = Math.floor(empty / n);
+      const targets = {
+        ArrowLeft: x < n - 1 ? empty + 1 : -1,
+        ArrowRight: x > 0 ? empty - 1 : -1,
+        ArrowUp: y < n - 1 ? empty + n : -1,
+        ArrowDown: y > 0 ? empty - n : -1,
+      };
+      if (!(event.key in targets)) return;
+      event.preventDefault();
+      if (targets[event.key] >= 0) this.move(targets[event.key]);
+    }
+
+    onPointerDown(event) {
+      const tile = event.target.closest('.puzzle__tile');
+      this.drag = tile ? { tile, x: event.clientX, y: event.clientY } : null;
+    }
+
+    onPointerUp(event) {
+      if (!this.drag) return;
+      const dx = event.clientX - this.drag.x;
+      const dy = event.clientY - this.drag.y;
+      const cell = this.cellOf(this.drag.tile);
+      this.drag = null;
+      if (Math.hypot(dx, dy) < 20) return;
+
+      this.swiped = true;
+      const empty = this.empty;
+      const direction = Math.abs(dx) > Math.abs(dy) ? Math.sign(dx) : Math.sign(dy) * this.size;
+      if (cell + direction === empty && this.neighbours(empty).includes(cell)) this.move(cell);
+    }
+  }
+
+  if (!customElements.get('kamui-puzzle')) customElements.define('kamui-puzzle', KamuiPuzzle);
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:general.puzzle",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image"
+    },
+    {
+      "type": "select",
+      "id": "grid_size",
+      "label": "t:labels.grid_size",
+      "options": [
+        { "value": "3", "label": "t:options.grid_size.three" },
+        { "value": "4", "label": "t:options.grid_size.four" }
+      ],
+      "default": "3"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.puzzle"
+    }
+  ]
+}
+{% endschema %}

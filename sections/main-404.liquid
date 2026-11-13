@@ -1,0 +1,50 @@
+<div class="not-found">
+  <p class="not-found__code" aria-hidden="true">404</p>
+  <h1 class="page-title">{{ '404.title' | t }}</h1>
+  <p class="not-found__text">{{ '404.not_found' | t }}</p>
+
+  <form class="not-found__search" action="{{ routes.search_url }}" method="get" role="search">
+    <label class="visually-hidden" for="NotFoundSearch">{{ 'search.label' | t }}</label>
+    <input id="NotFoundSearch" type="search" name="q" placeholder="{{ 'search.placeholder' | t }}" enterkeyhint="search">
+    <button type="submit" class="button">{{ 'search.submit' | t }}</button>
+  </form>
+
+  <a class="button button--primary" href="{{ routes.all_products_collection_url }}">{{ '404.back_to_shopping' | t }}</a>
+</div>
+
+{% stylesheet %}
+  .not-found {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-4);
+    padding-block: var(--space-8);
+    text-align: center;
+  }
+  .not-found__code {
+    color: var(--color-brand, #9f100c);
+    font-size: clamp(5rem, 18vw, 12rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .not-found__text {
+    max-width: 40ch;
+    color: var(--color-muted);
+  }
+  .not-found__search {
+    display: flex;
+    gap: var(--space-2);
+    width: min(30rem, 100%);
+    margin-block: var(--space-3);
+  }
+  .not-found__search input {
+    flex: 1;
+    min-width: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.404",
+  "settings": []
+}
+{% endschema %}

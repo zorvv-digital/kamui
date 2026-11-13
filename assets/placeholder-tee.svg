@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+  <rect width="400" height="500" fill="var(--color-surface, #efece8)" />
+  <path stroke="var(--color-rule, #d9d5d0)" d="M100 0v500M200 0v500M300 0v500M0 125h400M0 250h400M0 375h400" />
+  <path fill="var(--color-background, #faf8f5)" stroke="var(--color-foreground, #1c1917)" stroke-width="1.5" stroke-linejoin="miter"
+    d="M160 130h80l56 22 44 62-34 26-22-28v178H116V212l-22 28-34-26 44-62z" />
+  <path stroke="var(--color-foreground, #1c1917)" stroke-width="1.5" d="M160 130l40 26 40-26" />
+  <rect x="188" y="196" width="24" height="24" stroke="var(--color-foreground, #1c1917)" stroke-width="1.5" />
+  <path stroke="var(--color-foreground, #1c1917)" stroke-width="1.5" d="M24 40V24h16M360 24h16v16M376 460v16h-16M40 476H24v-16" />
+</svg>

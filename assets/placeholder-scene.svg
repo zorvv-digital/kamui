@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+  <rect width="600" height="600" fill="var(--color-surface, #efece8)" />
+  <path stroke="var(--color-rule, #d9d5d0)" d="M150 0v600M300 0v600M450 0v600M0 150h600M0 300h600M0 450h600" />
+  <g stroke="var(--color-foreground, #1c1917)" stroke-width="1.5">
+    <path d="M90 150h420" />
+    <path d="M210 150v28M300 150v28M390 150v28" />
+    <path fill="var(--color-background, #faf8f5)" d="M166 190l44-12 44 12v230h-88z" />
+    <path fill="var(--color-foreground, #1c1917)" d="M256 190l44-12 44 12v270h-88z" />
+    <path fill="var(--color-background, #faf8f5)" d="M346 190l44-12 44 12v200h-88z" />
+    <path d="M36 60V36h24M540 36h24v24M564 540v24h-24M60 564H36v-24" />
+  </g>
+</svg>

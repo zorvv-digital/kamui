@@ -1,0 +1,91 @@
+{% doc %}
+  Renders a price with sale, MRP and tax labels.
+
+  @param {variant} [variant] - Variant to price. When omitted, product-level pricing is used.
+  @param {product} [product] - Product used for "from" pricing when no variant is given.
+  @param {boolean} [show_tax_label] - Show "Inclusive of all taxes" under the price.
+  @param {boolean} [show_mrp_label] - Label an undiscounted price as MRP.
+
+  @example
+  {% render 'price', variant: product.selected_or_first_available_variant, show_tax_label: true, show_mrp_label: true %}
+  {% render 'price', product: product %}
+{% enddoc %}
+
+{% liquid
+  if variant
+    assign price = variant.price
+    assign compare_at = variant.compare_at_price
+    assign price_varies = false
+  else
+    assign price = product.price
+    assign compare_at = product.compare_at_price
+    assign price_varies = product.price_varies
+  endif
+
+  assign on_sale = false
+  if compare_at > price
+    assign on_sale = true
+    assign percent = compare_at | minus: price | times: 100 | divided_by: compare_at
+  endif
+
+  assign price_formatted = price | money
+%}
+
+<div class="price{% if on_sale %} price--on-sale{% endif %}">
+  <span class="price__current">
+    {%- if on_sale -%}
+      <span class="visually-hidden">{{ 'products.sale_price' | t }}</span>
+    {%- elsif show_mrp_label -%}
+      <span class="price__label">{{ 'products.mrp' | t }}</span>
+    {%- endif -%}
+    {%- if price_varies -%}
+      {{ 'products.price_from' | t: price: price_formatted }}
+    {%- else -%}
+      {{ price_formatted }}
+    {%- endif -%}
+  </span>
+
+  {%- if on_sale -%}
+    <span class="price__compare">
+      {{- 'products.mrp' | t }}
+      <s>{{ compare_at | money }}</s>
+    </span>
+    <span class="price__save">{{ 'products.save' | t: percent: percent }}</span>
+  {%- endif -%}
+
+  {%- if show_tax_label -%}
+    <span class="price__tax">{{ 'products.inclusive_taxes' | t }}</span>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+  }
+  .price__label {
+    margin-inline-end: 0.35em;
+    color: var(--color-muted);
+    font-size: 0.85em;
+  }
+  .price--on-sale .price__current {
+    color: var(--color-brand, #9f100c);
+  }
+  .price__compare,
+  .price__save {
+    font-size: 0.85em;
+  }
+  .price__compare {
+    color: var(--color-muted);
+  }
+  .price__save {
+    color: var(--color-brand, #9f100c);
+  }
+  .price__tax {
+    flex-basis: 100%;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+{% endstylesheet %}

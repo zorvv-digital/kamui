@@ -1,0 +1,142 @@
+{% doc %}
+  Renders a product card: image (with a second image on hover), sale or sold-out badge, title and price.
+  The image carries a view-transition-name so it morphs into the product page's main image.
+
+  @param {product} product - The product to render
+  @param {string} [sizes] - The sizes attribute for the image
+  @param {boolean} [eager] - Load the image eagerly, for cards above the fold
+  @param {string} [heading] - Heading tag for the title, h3 by default. Use h2 when the page has no h2 above the grid.
+
+  @example
+  {% render 'product-card', product: product %}
+  {% render 'product-card', product: product, sizes: '(min-width: 750px) 33vw, 75vw', eager: true %}
+{% enddoc %}
+
+{% liquid
+  assign sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign loading = 'lazy'
+  if eager
+    assign loading = 'eager'
+  endif
+  assign second_image = product.images[1]
+  assign heading = heading | default: 'h3'
+%}
+
+<a class="product-card" href="{{ product.url }}">
+  <div class="product-card__media" style="view-transition-name: product-{{ product.id }}">
+    {% if product.featured_image %}
+      {{
+        product.featured_image
+        | image_url: width: 1200
+        | image_tag: loading: loading, widths: '360, 540, 720, 960, 1200', sizes: sizes, class: 'product-card__image'
+      }}
+      {% if second_image %}
+        {{
+          second_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '360, 540, 720, 960, 1200',
+            sizes: sizes,
+            alt: '',
+            class: 'product-card__image product-card__image--hover'
+        }}
+      {% endif %}
+    {% else %}
+      {{ 'placeholder-tee.svg' | inline_asset_content }}
+    {% endif %}
+
+    {% if product.available == false %}
+      <span class="product-card__badge">{{ 'products.sold_out' | t }}</span>
+    {% elsif product.compare_at_price > product.price %}
+      <span class="product-card__badge product-card__badge--sale">{{ 'products.sale' | t }}</span>
+    {% endif %}
+  </div>
+
+  <div class="product-card__info">
+    <{{ heading }} class="product-card__title">{{ product.title | escape }}</{{ heading }}>
+    {% render 'price', product: product %}
+  </div>
+</a>
+
+{% stylesheet %}
+  .product-card {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border: 1px solid var(--color-rule);
+    background: var(--color-background);
+    color: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out), scale var(--duration-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+  a.product-card:active {
+    scale: 0.98;
+  }
+  .product-card__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-block-end: 1px solid var(--color-rule);
+    background: var(--color-surface);
+  }
+  .product-card__info {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    padding: var(--space-3);
+  }
+  .product-card__media > svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .product-card__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity var(--duration-base) var(--ease-out), scale 0.6s var(--ease-out);
+  }
+  .product-card__image--hover {
+    opacity: 0;
+  }
+  .product-card__badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-background);
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .product-card__badge--sale {
+    background: var(--color-brand, #9f100c);
+    color: #fff;
+  }
+  .product-card__title {
+    font-size: inherit;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+  a.product-card:is(:hover, :focus-visible) {
+    border-color: var(--color-foreground);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .product-card:hover .product-card__image {
+      scale: 1.03;
+    }
+    .product-card:hover .product-card__image--hover {
+      opacity: 1;
+    }
+    .product-card:hover .product-card__title {
+      text-decoration: underline;
+      text-underline-offset: 0.2em;
+    }
+  }
+{% endstylesheet %}

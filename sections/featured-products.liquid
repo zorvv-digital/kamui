@@ -1,0 +1,141 @@
+{% assign featured_collection = section.settings.collection | default: collections.all %}
+
+<div class="featured-products">
+  <header class="featured-products__header">
+    {% if section.settings.heading != blank %}
+      <h2 class="featured-products__heading">{{ section.settings.heading | escape }}</h2>
+    {% endif %}
+    <a class="featured-products__all" href="{{ featured_collection.url | default: routes.all_products_collection_url }}">
+      {{ 'collections.view_all' | t }}
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </header>
+
+  <ul class="featured-products__grid" role="list">
+    {% for product in featured_collection.products limit: section.settings.limit %}
+      <li>
+        {% render 'product-card', product: product, sizes: '(min-width: 750px) 33vw, 75vw' %}
+      </li>
+    {% else %}
+      {% for i in (1..3) %}
+        <li>
+          <div class="product-card">
+            <div class="product-card__media">
+              {{ 'placeholder-tee.svg' | inline_asset_content }}
+            </div>
+            <div class="product-card__info">
+              <h3 class="product-card__title">{{ 'sections.featured_products.placeholder_title' | t }}</h3>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    {% endfor %}
+  </ul>
+</div>
+
+{% stylesheet %}
+  .featured-products {
+    min-width: 0;
+    padding-block: var(--space-section);
+  }
+  .featured-products__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-block-end: var(--space-5);
+    padding-block-end: var(--space-3);
+    border-block-end: 1px solid var(--color-foreground);
+  }
+  .featured-products__heading {
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .featured-products__all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-target);
+    margin-inline-start: auto;
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-caps);
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .featured-products__all:hover {
+    text-decoration: underline;
+  }
+  /* Every product gets the same size. Phones swipe sideways, wider screens show three across. */
+  .featured-products__grid {
+    position: relative;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 78%;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    list-style: none;
+    counter-reset: piece;
+  }
+  .featured-products__grid > li {
+    display: grid;
+    scroll-snap-align: start;
+    counter-increment: piece;
+  }
+  .featured-products__grid .product-card__title::before {
+    content: counter(piece, decimal-leading-zero);
+    display: block;
+    margin-block-end: var(--space-1);
+    color: var(--color-muted);
+    font-size: 0.6875rem;
+  }
+  @media (min-width: 750px) {
+    .featured-products__grid {
+      grid-auto-flow: row;
+      grid-auto-columns: auto;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-5);
+      overflow: visible;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.featured_products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "Latest drop"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:labels.collection"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "t:labels.products_to_show",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.featured_products"
+    }
+  ]
+}
+{% endschema %}

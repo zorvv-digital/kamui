@@ -1,39 +1,356 @@
-<footer>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
-  </div>
+{% liquid
+  assign contact_url = section.settings.contact_url | default: '/pages/contact'
+  assign instagram_url = section.settings.instagram_url
+  assign youtube_url = section.settings.youtube_url
+%}
 
-  <div class="footer__links">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+<footer class="footer full-width">
+  <div class="footer__signup">
+    <div class="footer__signup-form">
+      <h2 class="footer__signup-title">{{ 'footer.subscribe_title' | t }}</h2>
+      {% form 'customer', id: 'FooterNewsletter', class: 'footer__newsletter' %}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        {% if form.posted_successfully? %}
+          <p class="footer__signup-status" role="status">{{ 'footer.subscribed' | t }}</p>
+        {% else %}
+          <div class="footer__field">
+            <label class="visually-hidden" for="FooterEmail">{{ 'footer.email' | t }}</label>
+            <input
+              id="FooterEmail"
+              type="email"
+              name="contact[email]"
+              placeholder="{{ 'footer.email' | t }}"
+              autocomplete="email"
+              spellcheck="false"
+              required
+              {% if form.errors %}
+                aria-invalid="true" aria-describedby="FooterEmailError"
+              {% endif %}
+            >
+            <button type="submit" aria-label="{{ 'footer.subscribe' | t }}">
+              <span aria-hidden="true">&rarr;</span>
+            </button>
+          </div>
+          {% if form.errors %}
+            <p id="FooterEmailError" class="footer__signup-status" role="alert">
+              {{ form.errors.translated_fields.email | capitalize }}
+              {{ form.errors.messages.email }}
+            </p>
+          {% endif %}
+        {% endif %}
+      {% endform %}
+    </div>
 
-  <div class="footer__payment">
-    {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
+    {% if instagram_url != blank or youtube_url != blank %}
+      <ul class="footer__social-icons" role="list">
+        {% if instagram_url != blank %}
+          <li>
+            <a href="{{ instagram_url }}" target="_blank" rel="noopener">
+              {{ 'icon-instagram.svg' | inline_asset_content }}
+              <span class="visually-hidden">{{ 'footer.instagram' | t }} ({{ 'accessibility.new_window' | t }})</span>
+            </a>
+          </li>
+        {% endif %}
+        {% if youtube_url != blank %}
+          <li>
+            <a href="{{ youtube_url }}" target="_blank" rel="noopener">
+              {{ 'icon-youtube.svg' | inline_asset_content }}
+              <span class="visually-hidden">{{ 'footer.youtube' | t }} ({{ 'accessibility.new_window' | t }})</span>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
     {% endif %}
   </div>
+
+  <div class="footer__columns">
+    {% if instagram_url != blank or youtube_url != blank %}
+      <nav class="footer__column footer__links" aria-labelledby="FooterSocial">
+        <h2 id="FooterSocial" class="footer__heading">{{ 'footer.social' | t }}</h2>
+        <ul role="list">
+          {% if instagram_url != blank %}
+            <li>
+              <a href="{{ instagram_url }}" target="_blank" rel="noopener">{{ 'footer.instagram' | t }}</a>
+            </li>
+          {% endif %}
+          {% if youtube_url != blank %}
+            <li>
+              <a href="{{ youtube_url }}" target="_blank" rel="noopener">{{ 'footer.youtube' | t }}</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+
+    <nav class="footer__column footer__links" aria-labelledby="FooterShop">
+      <h2 id="FooterShop" class="footer__heading">{{ 'footer.shop' | t }}</h2>
+      <ul role="list">
+        <li><a href="{{ routes.all_products_collection_url }}">{{ 'header.shop_all' | t }}</a></li>
+        <li><a href="{{ routes.collections_url }}">{{ 'header.collections' | t }}</a></li>
+        <li><a href="{{ routes.search_url }}">{{ 'header.search' | t }}</a></li>
+      </ul>
+    </nav>
+
+    <nav class="footer__column footer__links" aria-labelledby="FooterHelp">
+      <h2 id="FooterHelp" class="footer__heading">{{ 'footer.help' | t }}</h2>
+      <ul role="list">
+        <li><a href="{{ contact_url }}">{{ 'footer.contact' | t }}</a></li>
+        {% if shop.customer_accounts_enabled %}
+          <li><a href="{{ routes.account_url }}">{{ 'header.account' | t }}</a></li>
+        {% endif %}
+        <li><a href="{{ routes.cart_url }}">{{ 'header.cart' | t }}</a></li>
+      </ul>
+    </nav>
+
+    {% if shop.policies.size > 0 %}
+      <nav class="footer__column footer__links" aria-labelledby="FooterPolicies">
+        <h2 id="FooterPolicies" class="footer__heading">{{ 'footer.policies' | t }}</h2>
+        <ul role="list">
+          {% for policy in shop.policies %}
+            <li>{{ policy.title | escape | link_to: policy.url }}</li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+
+    <nav class="footer__column" aria-labelledby="FooterBrand">
+      <h2 id="FooterBrand" class="footer__heading">{{ section.settings.brand_heading | default: shop.name | escape }}</h2>
+      {% if section.settings.brand_text != blank %}
+        <p class="footer__about">{{ section.settings.brand_text | escape }}</p>
+      {% endif %}
+      <ul role="list">
+        {% if section.settings.our_story_url != blank %}
+          <li><a href="{{ section.settings.our_story_url }}">{{ 'footer.our_story' | t }}</a></li>
+        {% endif %}
+        {% if section.settings.blog_url != blank %}
+          <li><a href="{{ section.settings.blog_url }}">{{ 'footer.blogs' | t }}</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    {% if settings.customer_care != blank or settings.grievance_officer != blank %}
+      <div class="footer__column footer__care">
+        {% if settings.customer_care != blank %}
+          <h2 class="footer__heading">{{ 'footer.customer_care' | t }}</h2>
+          <p>{{ settings.customer_care | escape | newline_to_br }}</p>
+        {% endif %}
+        {% if settings.grievance_officer != blank %}
+          <h2 class="footer__heading">{{ 'footer.grievance' | t }}</h2>
+          <p>{{ settings.grievance_officer | escape | newline_to_br }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="footer__legal">
+    {% render 'payment-icons', class: 'footer__payments' %}
+    <p class="footer__copyright">
+      &copy; {{ 'now' | date: '%Y' }}
+      {{ shop.name | escape }}.
+      {{ 'footer.copyright' | t }}
+    </p>
+  </div>
+
+  <a class="footer__wordmark" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+    {{ 'logo-kamui.svg' | inline_asset_content }}
+  </a>
 </footer>
 
 {% stylesheet %}
-  footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
+  .footer {
+    --icon-stroke-width: 1.5;
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+    padding: 0 max(var(--page-margin), 3vw) clamp(1.5rem, 3vw, 2.5rem);
+    background: var(--color-brand, #9f100c);
+    color: #fff;
+    font-size: var(--text-sm);
   }
-  footer a {
+  .footer a {
+    color: inherit;
     text-decoration: none;
-    color: var(--color-foreground);
+    text-underline-offset: 0.25em;
   }
-  footer .footer__links,
-  footer .footer__payment {
+  .footer a:is(:hover, :focus-visible) {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .footer :focus-visible {
+    outline-color: #fff;
+  }
+  .footer__signup {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+    border-block-end: 1px solid rgb(255 255 255 / 0.25);
+  }
+  .footer__signup-form {
+    display: grid;
+    gap: var(--space-4);
+    width: min(28rem, 100%);
+  }
+  .footer__signup-title {
+    font-size: var(--text-lg);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+  .footer__field {
+    display: flex;
+    border: 1px solid rgb(255 255 255 / 0.85);
+  }
+  .footer__field:focus-within {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+  .footer__field input {
+    flex: 1;
+    min-width: 0;
+    min-height: 3.25rem;
+    padding-inline: var(--space-4);
+    border: 0;
+    outline: 0;
+    background: none;
+    color: inherit;
+  }
+  .footer__field input::placeholder {
+    color: rgb(255 255 255 / 0.8);
+  }
+  .footer__field button {
+    width: 3.25rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: var(--text-lg);
+    transition: translate var(--duration-fast) var(--ease-out);
+  }
+  .footer__field button:hover {
+    translate: 0.2rem 0;
+  }
+  .footer__signup-status {
+    font-size: var(--text-sm);
+  }
+  .footer__social-icons {
+    display: flex;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .footer__social-icons a {
+    display: grid;
+    place-items: center;
+    width: var(--tap-target);
+    height: var(--tap-target);
+  }
+  .footer__social-icons svg {
+    width: 1.5rem;
+  }
+  .footer__columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+    align-items: start;
+    gap: var(--space-6) var(--space-5);
+  }
+  .footer__column {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .footer__column ul {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .footer__column li a {
+    display: inline-flex;
+    align-items: center;
+    min-width: var(--tap-target);
+    min-height: var(--tap-target);
+  }
+  .footer__heading {
+    color: rgb(255 255 255 / 0.75);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .footer__about {
+    max-width: 28ch;
+  }
+  .footer__care p + .footer__heading {
+    margin-block-start: var(--space-3);
+  }
+  .footer__legal {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .footer .payment-icons__text,
+  .footer__copyright {
+    color: rgb(255 255 255 / 0.8);
+    font-size: var(--text-xs);
+  }
+  .footer__wordmark {
+    display: block;
+    text-decoration: none;
+  }
+  .footer__wordmark svg {
+    width: 100%;
+    height: auto;
+  }
+  @media (max-width: 749px) {
+    .footer {
+      gap: var(--space-6);
+      text-align: center;
+    }
+    .footer__signup {
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .footer__signup-form {
+      width: 100%;
+    }
+    .footer__columns {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0 var(--space-5);
+    }
+    .footer__links,
+    .footer__links ul {
+      display: contents;
+    }
+    .footer__links .footer__heading {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .footer__links li {
+      display: flex;
+      align-items: center;
+    }
+    .footer__links li a {
+      justify-content: center;
+    }
+    .footer__column:not(.footer__links) {
+      flex-basis: 100%;
+      justify-items: center;
+      margin-block-start: var(--space-5);
+    }
+    .footer__about {
+      max-width: none;
+    }
+    .footer__legal {
+      justify-items: center;
+      gap: var(--space-2);
+    }
   }
 {% endstylesheet %}
 
@@ -42,15 +359,41 @@
   "name": "t:general.footer",
   "settings": [
     {
-      "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
+      "type": "url",
+      "id": "instagram_url",
+      "label": "t:labels.instagram_link"
     },
     {
-      "type": "checkbox",
-      "id": "show_payment_icons",
-      "label": "t:labels.show_payment_icons",
-      "default": true
+      "type": "url",
+      "id": "youtube_url",
+      "label": "t:labels.youtube_link"
+    },
+    {
+      "type": "url",
+      "id": "contact_url",
+      "label": "t:labels.contact_link"
+    },
+    {
+      "type": "text",
+      "id": "brand_heading",
+      "label": "t:labels.heading",
+      "default": "We are Kamui."
+    },
+    {
+      "type": "textarea",
+      "id": "brand_text",
+      "label": "t:labels.text",
+      "default": "Clothing made to be worn on repeat."
+    },
+    {
+      "type": "url",
+      "id": "our_story_url",
+      "label": "t:labels.our_story_link"
+    },
+    {
+      "type": "url",
+      "id": "blog_url",
+      "label": "t:labels.blog_link"
     }
   ]
 }
