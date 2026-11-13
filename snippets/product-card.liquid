@@ -69,7 +69,7 @@
     font-size: 0.8125rem;
     letter-spacing: 0.04em;
     text-decoration: none;
-    transition: border-color var(--duration-fast) var(--ease-out), scale var(--duration-fast) var(--ease-out);
+    transition: scale var(--duration-fast) var(--ease-out);
     -webkit-tap-highlight-color: transparent;
   }
   a.product-card:active {
@@ -123,9 +123,6 @@
     font-size: inherit;
     font-weight: 400;
     text-transform: uppercase;
-  }
-  a.product-card:is(:hover, :focus-visible) {
-    border-color: var(--color-foreground);
   }
   @media (hover: hover) and (pointer: fine) {
     .product-card:hover .product-card__image {
