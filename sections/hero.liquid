@@ -30,11 +30,33 @@
     </picture>
     <div class="hero__scrim"></div>
 
-    {% if section.settings.heading != blank %}
-      <h1 class="hero__heading">{{ section.settings.heading | escape }}</h1>
-    {% endif %}
+    <div class="hero__copy">
+      {% if section.settings.heading != blank %}
+        <h1 class="hero__heading">{{ section.settings.heading | escape | newline_to_br }}</h1>
+      {% endif %}
+
+      {% if section.settings.subheading != blank %}
+        <p class="hero__subheading">{{ section.settings.subheading | escape }}</p>
+      {% endif %}
+
+      <a class="hero__cta" href="#FooterSignup">
+        {{- 'sections.hero.early_access' | t -}}
+      </a>
+    </div>
   </div>
 </div>
+
+{% style %}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+
+  .hero__heading,
+  .hero__subheading,
+  .hero__cta {
+    font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    font-style: {{ section.settings.heading_font.style }};
+    font-weight: {{ section.settings.heading_font.weight }};
+  }
+{% endstyle %}
 
 {% stylesheet %}
   .hero {
@@ -47,9 +69,9 @@
     position: relative;
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     min-height: 24rem;
-    padding: var(--header-height) max(var(--page-margin), 3vw) 0;
+    padding: var(--header-height) max(var(--page-margin), 3vw) max(3.75rem, 6vw);
     overflow: hidden;
     background: var(--color-foreground);
     color: #fff;
@@ -61,13 +83,15 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 80% center;
   }
   @keyframes hero-settle {
     from {
       scale: 1.08;
     }
   }
-  .hero__heading {
+  .hero__copy {
+    position: relative;
     animation: hero-rise 1s var(--ease-out) 0.3s both;
   }
   @keyframes hero-rise {
@@ -82,19 +106,51 @@
     height: calc(var(--header-height) * 2);
     background: linear-gradient(rgb(0 0 0 / 0.45), transparent);
   }
+  /* Sized to stay in the empty left of the photo, clear of the figures */
   .hero__heading {
-    position: relative;
-    max-width: 14em;
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+    margin-inline-start: -0.02em;
+    font-size: clamp(6rem, 10.75vw, 18rem);
+    line-height: 1;
+    word-spacing: -0.1em;
     text-transform: uppercase;
-    text-wrap: balance;
   }
+  .hero__subheading {
+    margin-block-start: 0.5rem;
+    font-size: clamp(1rem, 1.5vw, 2.25rem);
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .hero__cta {
+    display: inline-block;
+    margin-block-start: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--style-border-radius-inputs);
+    background: var(--color-brand);
+    color: #fff;
+    font-size: clamp(0.8125rem, 0.875vw, 1.125rem);
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .hero__cta:hover {
+    background: #fff;
+    color: var(--color-brand);
+  }
+  /* The mobile crop has no empty side, so the copy sits on the figure */
   @media (max-width: 749px) {
-    .hero__media img {
-      object-position: 80% center;
+    .hero__heading {
+      font-size: 26vw;
+    }
+    .hero__scrim {
+      inset: 0;
+      height: auto;
+      background: linear-gradient(
+        rgb(0 0 0 / 0.45),
+        transparent calc(var(--header-height) * 2),
+        transparent 55%,
+        rgb(0 0 0 / 0.75)
+      );
     }
   }
 {% endstylesheet %}
@@ -114,9 +170,20 @@
       "label": "t:labels.image_mobile"
     },
     {
-      "type": "text",
+      "type": "textarea",
       "id": "heading",
       "label": "t:labels.heading"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "t:labels.heading_font",
+      "default": "anton_n4"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:labels.subheading"
     }
   ],
   "presets": [

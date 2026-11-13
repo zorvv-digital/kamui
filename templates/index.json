@@ -11,7 +11,11 @@
   "sections": {
     "main": {
       "type": "hero",
-      "settings": {}
+      "settings": {
+        "heading": "In the\nmaking.",
+        "heading_font": "anton_n4",
+        "subheading": "Drop 1 coming soon."
+      }
     },
     "featured_products": {
       "type": "featured-products",

@@ -192,6 +192,7 @@
       "price_from": "From {{ price }}"
     },
     "hero": {
+      "early_access": "Get early access",
       "email": "Email",
       "image_alt": "Three men in vintage tailoring in a wood-panelled library",
       "subscribe": "Subscribe",
