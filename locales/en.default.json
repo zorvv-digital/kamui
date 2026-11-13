@@ -95,22 +95,29 @@
     }
   },
   "footer": {
+    "about": "We are Kamui.",
     "blogs": "Blogs",
     "contact": "Contact us",
     "copyright": "All rights reserved.",
     "customer_care": "Customer care",
     "email": "Email",
+    "facebook": "Facebook",
     "grievance": "Grievance officer",
     "help": "Help",
     "instagram": "Instagram",
     "our_story": "Our story",
     "payment_methods": "Payment methods",
     "policies": "Policies",
+    "privacy_policy": "Privacy policy",
+    "refund_policy": "Refund policy",
+    "shipping_policy": "Shipping policy",
     "shop": "Shop",
     "social": "Social",
     "subscribe": "Subscribe",
     "subscribe_title": "Subscribe to our emails",
     "subscribed": "You're subscribed.",
+    "terms_of_service": "Terms of service",
+    "twitter": "Twitter",
     "youtube": "YouTube"
   },
   "gift_card": {
@@ -211,6 +218,12 @@
         "one": "Solved in {{ count }} move",
         "other": "Solved in {{ count }} moves"
       }
+    },
+    "subscribe": {
+      "email": "Email",
+      "submit": "Subscribe",
+      "success": "You're on the list.",
+      "title": "Subscribe for early access entry"
     }
   }
 }

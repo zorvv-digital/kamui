@@ -14,7 +14,8 @@
     "footer": {
       "type": "footer",
       "settings": {
-        "brand_heading": "We are Kamui."
+        "instagram_url": "https://www.instagram.com/kamui.in/",
+        "show_payment_icons": true
       }
     }
   },

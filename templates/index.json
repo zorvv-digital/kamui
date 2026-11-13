@@ -28,6 +28,10 @@
         ]
       }
     },
+    "subscribe": {
+      "type": "subscribe",
+      "settings": {}
+    },
     "collection_tiles": {
       "type": "collection-tiles",
       "blocks": {
@@ -63,6 +67,7 @@
   "order": [
     "main",
     "featured_products",
+    "subscribe",
     "collection_tiles",
     "pattern",
     "journey"
