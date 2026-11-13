@@ -72,6 +72,7 @@
     "default_country_of_origin": "Default country of origin",
     "default_manufacturer": "Default manufacturer, packer, or importer",
     "delivery_text": "Delivery time text",
+    "facebook_link": "Facebook link",
     "foreground": "Foreground",
     "free_shipping_threshold": "Free shipping threshold",
     "grid_gap": "Grid spacing",
@@ -102,6 +103,7 @@
     "text": "Text",
     "text_style": "Text style",
     "trending_searches": "Trending searches",
+    "twitter_link": "Twitter link",
     "youtube_link": "YouTube link"
   },
   "options": {

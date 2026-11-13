@@ -2,6 +2,12 @@
   assign contact_url = section.settings.contact_url | default: '/pages/contact'
   assign instagram_url = section.settings.instagram_url
   assign youtube_url = section.settings.youtube_url
+  assign twitter_url = section.settings.twitter_url
+  assign facebook_url = section.settings.facebook_url
+  assign our_story_url = routes.root_url | append: '#our-journey'
+  if section.settings.our_story_url != blank
+    assign our_story_url = section.settings.our_story_url
+  endif
 %}
 
 <footer class="footer full-width">
@@ -64,23 +70,51 @@
   </div>
 
   <div class="footer__columns">
-    {% if instagram_url != blank or youtube_url != blank %}
-      <nav class="footer__column footer__links" aria-labelledby="FooterSocial">
-        <h2 id="FooterSocial" class="footer__heading">{{ 'footer.social' | t }}</h2>
-        <ul role="list">
-          {% if instagram_url != blank %}
-            <li>
-              <a href="{{ instagram_url }}" target="_blank" rel="noopener">{{ 'footer.instagram' | t }}</a>
-            </li>
-          {% endif %}
-          {% if youtube_url != blank %}
-            <li>
-              <a href="{{ youtube_url }}" target="_blank" rel="noopener">{{ 'footer.youtube' | t }}</a>
-            </li>
-          {% endif %}
-        </ul>
-      </nav>
-    {% endif %}
+    <nav class="footer__column footer__links" aria-labelledby="FooterSocial">
+      <h2 id="FooterSocial" class="footer__heading">{{ 'footer.social' | t }}</h2>
+      <ul role="list">
+          <li>
+            <a
+              href="{{ instagram_url | default: '#' }}"
+              {% if instagram_url != blank %}
+                target="_blank" rel="noopener"
+              {% endif %}
+            >
+              {{- 'footer.instagram' | t -}}
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ youtube_url | default: '#' }}"
+              {% if youtube_url != blank %}
+                target="_blank" rel="noopener"
+              {% endif %}
+            >
+              {{- 'footer.youtube' | t -}}
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ twitter_url | default: '#' }}"
+              {% if twitter_url != blank %}
+                target="_blank" rel="noopener"
+              {% endif %}
+            >
+              {{- 'footer.twitter' | t -}}
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ facebook_url | default: '#' }}"
+              {% if facebook_url != blank %}
+                target="_blank" rel="noopener"
+              {% endif %}
+            >
+              {{- 'footer.facebook' | t -}}
+            </a>
+          </li>
+      </ul>
+    </nav>
 
     <nav class="footer__column footer__links" aria-labelledby="FooterShop">
       <h2 id="FooterShop" class="footer__heading">{{ 'footer.shop' | t }}</h2>
@@ -102,16 +136,15 @@
       </ul>
     </nav>
 
-    {% if shop.policies.size > 0 %}
-      <nav class="footer__column footer__links" aria-labelledby="FooterPolicies">
-        <h2 id="FooterPolicies" class="footer__heading">{{ 'footer.policies' | t }}</h2>
-        <ul role="list">
-          {% for policy in shop.policies %}
-            <li>{{ policy.title | escape | link_to: policy.url }}</li>
-          {% endfor %}
-        </ul>
-      </nav>
-    {% endif %}
+    <nav class="footer__column footer__links" aria-labelledby="FooterPolicies">
+      <h2 id="FooterPolicies" class="footer__heading">{{ 'footer.policies' | t }}</h2>
+      <ul role="list">
+        <li><a href="/policies/privacy-policy">{{ 'footer.privacy_policy' | t }}</a></li>
+        <li><a href="/policies/terms-of-service">{{ 'footer.terms_of_service' | t }}</a></li>
+        <li><a href="/policies/refund-policy">{{ 'footer.refund_policy' | t }}</a></li>
+        <li><a href="/policies/shipping-policy">{{ 'footer.shipping_policy' | t }}</a></li>
+      </ul>
+    </nav>
 
     <nav class="footer__column" aria-labelledby="FooterBrand">
       <h2 id="FooterBrand" class="footer__heading">{{ section.settings.brand_heading | default: shop.name | escape }}</h2>
@@ -119,12 +152,9 @@
         <p class="footer__about">{{ section.settings.brand_text | escape }}</p>
       {% endif %}
       <ul role="list">
-        {% if section.settings.our_story_url != blank %}
-          <li><a href="{{ section.settings.our_story_url }}">{{ 'footer.our_story' | t }}</a></li>
-        {% endif %}
-        {% if section.settings.blog_url != blank %}
-          <li><a href="{{ section.settings.blog_url }}">{{ 'footer.blogs' | t }}</a></li>
-        {% endif %}
+        <li><a href="{{ our_story_url }}">{{ 'footer.our_story' | t }}</a></li>
+        <li><a href="{{ contact_url }}">{{ 'footer.contact' | t }}</a></li>
+        <li><a href="{{ section.settings.blog_url | default: '/blogs/news' }}">{{ 'footer.blogs' | t }}</a></li>
       </ul>
     </nav>
 
@@ -396,6 +426,16 @@
       "type": "url",
       "id": "youtube_url",
       "label": "t:labels.youtube_link"
+    },
+    {
+      "type": "url",
+      "id": "twitter_url",
+      "label": "t:labels.twitter_link"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "t:labels.facebook_link"
     },
     {
       "type": "url",
