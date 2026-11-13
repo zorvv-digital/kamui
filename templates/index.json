@@ -46,8 +46,8 @@
       ],
       "settings": {}
     },
-    "puzzle": {
-      "type": "puzzle",
+    "pattern": {
+      "type": "pattern",
       "settings": {}
     },
     "journey": {
@@ -59,7 +59,7 @@
     "main",
     "featured_products",
     "collection_tiles",
-    "puzzle",
+    "pattern",
     "journey"
   ]
 }

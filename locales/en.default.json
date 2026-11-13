@@ -199,6 +199,9 @@
       "subscribe_title": "Subscribe for early access entry",
       "subscribed": "You're on the list."
     },
+    "pattern": {
+      "title": "Pattern"
+    },
     "puzzle": {
       "board": "Sliding puzzle",
       "instructions": "Tap or drag a tile next to the gap to slide it. Arrow keys work too.",
