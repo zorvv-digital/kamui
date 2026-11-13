@@ -20,7 +20,12 @@
     "featured_products": {
       "type": "featured-products",
       "settings": {
-        "limit": 3
+        "limit": 3,
+        "products": [
+          "kamui-logo-tee-black",
+          "kamui-classic-tee-white",
+          "kamui-tee-red"
+        ]
       }
     },
     "collection_tiles": {

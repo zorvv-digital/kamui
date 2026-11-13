@@ -1,4 +1,10 @@
-{% assign featured_collection = section.settings.collection | default: collections.all %}
+{% liquid
+  assign featured_collection = section.settings.collection | default: collections.all
+  assign featured_list = featured_collection.products
+  if section.settings.products != blank
+    assign featured_list = section.settings.products
+  endif
+%}
 
 <div class="featured-products">
   <header class="featured-products__header">
@@ -12,7 +18,7 @@
   </header>
 
   <ul class="featured-products__grid" role="list">
-    {% for product in featured_collection.products limit: section.settings.limit %}
+    {% for product in featured_list limit: section.settings.limit %}
       <li>
         {% render 'product-card', product: product, sizes: '(min-width: 750px) 33vw, 75vw' %}
       </li>
@@ -121,6 +127,13 @@
       "type": "collection",
       "id": "collection",
       "label": "t:labels.collection"
+    },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "t:labels.products",
+      "info": "t:info.featured_products",
+      "limit": 6
     },
     {
       "type": "range",
