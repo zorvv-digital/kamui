@@ -46,8 +46,14 @@
   </div>
 </div>
 
+{% comment %}
+  The heading waits for its font (block, preloaded) instead of drawing in a wider fallback
+  first, which reflowed the copy mid-animation.
+{% endcomment %}
+{{ section.settings.heading_font | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+
 {% style %}
-  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  {{ section.settings.heading_font | font_face: font_display: 'block' }}
 
   .hero__heading,
   .hero__subheading,
