@@ -114,8 +114,7 @@
       {
         "type": "text",
         "id": "payment_methods_text",
-        "label": "t:labels.payment_methods_text",
-        "default": "UPI · Cards · Net banking · Cash on delivery"
+        "label": "t:labels.payment_methods_text"
       },
       {
         "type": "text",
