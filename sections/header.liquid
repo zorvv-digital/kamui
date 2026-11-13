@@ -71,17 +71,6 @@
   </a>
 
   <div class="header__icons">
-    <button type="button" class="header__icon menu-toggle" popovertarget="header-menu">
-      <svg class="menu-toggle__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path stroke="currentColor" d="M3 7h14" />
-        <path stroke="currentColor" d="M3 13h14" />
-      </svg>
-      <span class="header__label">
-        <span class="menu-toggle__open">{{ 'header.menu' | t }}</span>
-        <span class="menu-toggle__close">{{ 'header.close' | t }}</span>
-      </span>
-    </button>
-
     {% comment %} The search icon is the field's label: pressing it focuses the field, and focus expands it. {% endcomment %}
     <form
       class="header__search"
@@ -116,6 +105,17 @@
       <div class="header__results" id="HeaderSearchResults" data-predictive hidden></div>
       <p class="visually-hidden" role="status" data-predictive-status></p>
     </form>
+
+    <button type="button" class="header__icon menu-toggle" popovertarget="header-menu">
+      <svg class="menu-toggle__icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path stroke="currentColor" d="M3 7h14" />
+        <path stroke="currentColor" d="M3 13h14" />
+      </svg>
+      <span class="header__label">
+        <span class="menu-toggle__open">{{ 'header.menu' | t }}</span>
+        <span class="menu-toggle__close">{{ 'header.close' | t }}</span>
+      </span>
+    </button>
 
     {% if shop.customer_accounts_enabled %}
       <a class="header__icon" href="{{ routes.account_url }}">
