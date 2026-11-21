@@ -72,6 +72,8 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* When the screen-height cap crops the photo, crop mostly the ground so heads stay whole */
+    object-position: 50% 15%;
   }
   /* Fade the photo into the dark story below */
   .journey__media::after {

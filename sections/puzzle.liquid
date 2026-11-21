@@ -3,6 +3,10 @@
   if section.settings.image
     assign image_src = section.settings.image | image_url: width: 1800, height: 1200, crop: 'center'
   endif
+  assign cols = 5
+  if section.settings.difficulty == 'easy'
+    assign cols = 4
+  endif
   assign instructions_id = 'PuzzleInstructions-' | append: section.id
 %}
 
@@ -16,314 +20,700 @@
   ></p>
 
   <div class="puzzle__inner">
+    {% if section.settings.heading != blank %}
+      <h2 class="puzzle__heading">{{ section.settings.heading | escape }}</h2>
+    {% endif %}
     <kamui-jigsaw
       class="puzzle__stage"
-      data-size="{{ section.settings.grid_size }}"
+      data-cols="{{ cols }}"
       data-image="{{ image_src }}"
       data-board-label="{{ 'sections.puzzle.board' | t }}"
       data-piece-label="{{ 'sections.puzzle.tile' | t: number: '__N__' }}"
+      data-progress="{{ 'sections.puzzle.progress' | t: joined: '__J__', total: '__T__' }}"
       data-instructions="{{ instructions_id }}"
     >
-      <img src="{{ image_src }}" alt="" width="1800" height="1200" loading="lazy">
+      {%- if section.settings.quote != blank -%}
+        <figure class="puzzle__quote">
+          <blockquote>{{ section.settings.quote | escape }}</blockquote>
+          <figcaption>{{ shop.name | escape }}</figcaption>
+        </figure>
+      {%- endif -%}
     </kamui-jigsaw>
+    <p class="puzzle__count" aria-hidden="true" data-count></p>
   </div>
 </div>
+
+{% style %}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  #shopify-section-{{ section.id }} .puzzle__heading,
+  #shopify-section-{{ section.id }} .puzzle__quote blockquote {
+    font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    font-weight: {{ section.settings.heading_font.weight }};
+  }
+{% endstyle %}
 
 {% stylesheet %}
   .puzzle {
     padding: var(--space-section) var(--page-margin);
     background: #fff;
+    /* Pieces scatter over the top of the next section, and fly in from beyond the side edges */
+    position: relative;
+    z-index: 2;
+    overflow-x: clip;
+    /* Overlap the next section by a pixel so a fractional edge never shows its dark background as a hairline */
+    margin-block-end: -1px;
+    padding-block-end: calc(var(--space-section) + 1px);
   }
   .puzzle__inner {
     display: grid;
     justify-items: center;
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
+  .puzzle__heading {
+    font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+    line-height: 0.95;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  /* --aspect is the play area. JS sets the exact value; these match the 15-piece layout. */
   .puzzle__stage {
-    display: block;
-    /* Whole board fits in one screen */
-    width: min(100%, 56rem, (100svh - 14rem) * 1.5);
-    aspect-ratio: 3 / 2;
-  }
-  .puzzle__stage > img {
+    --aspect: 0.71;
+    /* Above the heading, which pieces may sit over */
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-5);
     width: 100%;
-    height: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
-  .puzzle__stage svg {
+  /* Hold the play area's space until the pieces are built; after that the board sizes itself */
+  .puzzle__stage:not([data-ready]) {
+    aspect-ratio: var(--aspect);
+  }
+  @media (min-width: 750px) {
+    .puzzle__stage {
+      --aspect: 2.54;
+      width: min(100%, 64rem, (100svh - 18rem) * var(--aspect));
+    }
+  }
+  /* The play area. Positions are in puzzle units (--bw wide); --u turns one unit into pixels. */
+  .puzzle__board {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: var(--bw) / var(--bh);
+    --u: calc(100cqw / var(--bw));
+    transform-origin: 0 0;
+  }
+  .puzzle__defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  /* Each group is its own layer, sized to its pieces, so dragging only moves a layer and never redraws the puzzle */
+  .puzzle__group {
+    position: absolute;
+    left: calc(var(--x0) * var(--u));
+    top: calc(var(--y0) * var(--u));
+    width: calc(var(--w) * var(--u));
+    height: calc(var(--h) * var(--u));
+    transform-origin: calc(var(--ox) * var(--u)) calc(var(--oy) * var(--u));
+    transform: translate(calc(var(--x, 0) * var(--u)), calc(var(--y, 0) * var(--u))) rotate(calc(var(--a, 0) * 1deg));
+    will-change: transform;
+    /* Only the painted piece shapes take the pointer, not the empty corners of the layer */
+    pointer-events: none;
+  }
+  .puzzle__group svg {
     display: block;
     width: 100%;
     height: 100%;
     overflow: visible;
-    user-select: none;
   }
-  .puzzle__base {
-    fill: var(--color-foreground);
+  /* The quote appears once the photo is finished: under it on mobile, beside it on desktop */
+  .puzzle__quote {
+    display: none;
+    order: 1;
+    justify-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    text-align: center;
+  }
+  .puzzle.is-solved .puzzle__quote {
+    display: grid;
+    animation: puzzle-quote-in 0.8s var(--ease-out) 0.9s both;
+  }
+  @keyframes puzzle-quote-in {
+    from {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+  }
+  @media (max-width: 749px) {
+    .puzzle.is-solved .puzzle__count {
+      display: none;
+    }
+  }
+  @media (min-width: 750px) {
+    .puzzle__quote {
+      position: absolute;
+      top: 50%;
+      left: 55%;
+      right: 2%;
+      justify-items: start;
+      gap: var(--space-4);
+      text-align: left;
+      translate: 0 -50%;
+      pointer-events: none;
+    }
+    .puzzle.is-solved .puzzle__quote {
+      animation-name: puzzle-quote-in-side;
+    }
+  }
+  @keyframes puzzle-quote-in-side {
+    from {
+      opacity: 0;
+      translate: 2rem -50%;
+    }
+  }
+  .puzzle__quote blockquote {
+    margin: 0;
+    font-size: clamp(1.75rem, 1rem + 2vw, 3rem);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .puzzle__quote figcaption {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  /* Pieces that have joined share one group, so they lift and cast one shadow together */
+  .puzzle__group {
+    cursor: grab;
+    filter: drop-shadow(0 1px 1px rgb(30 10 5 / 0.12)) drop-shadow(0 10px 18px rgb(30 10 5 / 0.16));
+    transition:
+      transform 0.5s var(--ease-out),
+      filter var(--duration-base) var(--ease-out);
+  }
+  .puzzle__group.is-flying {
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (hover: hover) {
+    .puzzle__group:hover {
+      filter: drop-shadow(0 2px 2px rgb(30 10 5 / 0.14)) drop-shadow(0 16px 26px rgb(30 10 5 / 0.22));
+    }
+  }
+  /* No transform transition while dragging: the piece sticks to the finger */
+  .puzzle__group.is-dragging {
+    cursor: grabbing;
+    filter: drop-shadow(0 2px 3px rgb(30 10 5 / 0.16)) drop-shadow(0 24px 36px rgb(30 10 5 / 0.28));
+    transition: filter var(--duration-base) var(--ease-out);
   }
   .puzzle__piece {
+    pointer-events: visiblePainted;
     touch-action: none;
     outline: none;
-    transition: transform 0.3s var(--ease-out);
+    /* Stroked with the photo too, so joined pieces show no hairline seam */
+    stroke-width: 1;
   }
-  .puzzle__piece.is-movable {
-    cursor: grab;
+  .puzzle__piece:focus-visible {
+    stroke: var(--focus-ring);
+    stroke-width: 3;
+    vector-effect: non-scaling-stroke;
   }
-  .puzzle__piece image {
-    transition: opacity 0.6s var(--ease-out);
+  .puzzle.is-solved .puzzle__group {
+    cursor: default;
+    filter: drop-shadow(0 24px 48px rgb(30 10 5 / 0.2));
+    transition:
+      transform 0.9s var(--ease-out),
+      filter 0.9s var(--ease-out);
   }
-  /* The empty slot: the missing piece drawn as a light outline under the others */
-  .puzzle__piece.is-missing {
-    pointer-events: none;
+  .puzzle__count {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    transition: color var(--duration-base) var(--ease-out);
   }
-  .puzzle__piece.is-missing image {
-    opacity: 0;
+  .puzzle.is-solved .puzzle__count {
+    color: var(--color-brand);
   }
-  .puzzle__piece.is-missing path {
-    fill: color-mix(in srgb, var(--color-foreground) 10%, #fff);
-    stroke: none;
-  }
-  .puzzle__piece path {
-    fill: none;
-    stroke: rgb(0 0 0 / 0.6);
-    stroke-width: 1.5;
-  }
-  .puzzle__piece.is-dragging {
-    cursor: grabbing;
-    transition: none;
-  }
-  .puzzle__piece:focus-visible path {
-    stroke: var(--color-brand);
-    stroke-width: 5;
-  }
-  .puzzle.is-solved .puzzle__piece {
-    pointer-events: none;
-  }
-  .puzzle.is-solved .puzzle__piece path {
-    opacity: 0;
-    transition: opacity 0.6s var(--ease-out);
+  @media (prefers-reduced-motion: reduce) {
+    .puzzle__group,
+    .puzzle__group.is-dragging,
+    .puzzle.is-solved .puzzle__group {
+      transition: none;
+    }
   }
 {% endstylesheet %}
 
 {% javascript %}
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const CELL = 100;
+  const ROWS = 3;
+  const CELL_W = 150;
 
-  // One side of a piece from (x0,y0) to (x1,y1). tab is 1 (knob out), -1 (hole in) or 0 (flat).
-  function edge(x0, y0, x1, y1, tab) {
+  // One side of a piece, drawn clockwise. tab is 1 (knob out), -1 (hole in) or 0 (flat); s is the knob scale.
+  function edge(x0, y0, x1, y1, tab, s) {
     if (!tab) return ` L${x1},${y1}`;
-    const dx = (x1 - x0) / CELL;
-    const dy = (y1 - y0) / CELL;
-    const point = (u, v) => `${x0 + dx * u + dy * v * tab},${y0 + dy * u - dx * v * tab}`;
+    const len = Math.hypot(x1 - x0, y1 - y0);
+    const ux = (x1 - x0) / len;
+    const uy = (y1 - y0) / len;
+    const point = (u, v) => {
+      const a = len / 2 + ((u - 50) * s) / 100;
+      const b = (v * s * tab) / 100;
+      return `${(x0 + ux * a + uy * b).toFixed(1)},${(y0 + uy * a - ux * b).toFixed(1)}`;
+    };
     return (
-      ` L${point(36, 0)}` +
-      ` C${point(40, 0)} ${point(30, 22)} ${point(50, 22)}` +
-      ` C${point(70, 22)} ${point(60, 0)} ${point(64, 0)}` +
+      ` L${point(38, 0)}` +
+      ` C${point(42, 0)} ${point(32, 20)} ${point(50, 20)}` +
+      ` C${point(68, 20)} ${point(58, 0)} ${point(62, 0)}` +
       ` L${x1},${y1}`
     );
   }
 
-  // Sliding jigsaw: the last piece is missing, and only pieces next to the gap can move into it.
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Free jigsaw: pieces fly in and scatter, and neighbours dropped close together join into one group.
+  // A group's x/y is how far its pieces sit from where they belong in the photo, so joined pieces share it.
   class KamuiJigsaw extends HTMLElement {
     connectedCallback() {
-      // Rows from the setting; columns keep the board at roughly 3:2.
-      this.rows = Number(this.dataset.size) || 4;
-      this.cols = Math.round(this.rows * 1.5);
       this.section = this.closest('[data-puzzle]');
-      this.observer = new IntersectionObserver(
+      // Build early so the photo has loaded, then throw the pieces in once the section is in view
+      this.nearby = new IntersectionObserver(
         (entries) => {
           if (!entries.some((entry) => entry.isIntersecting)) return;
-          this.observer.disconnect();
-          this.status = this.section.querySelector('[data-status]');
-          this.reset();
+          this.nearby.disconnect();
+          this.build();
+          this.inView.observe(this);
         },
-        { rootMargin: '200px' }
+        { rootMargin: '400px' }
       );
-      this.observer.observe(this);
+      this.inView = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          this.inView.disconnect();
+          this.land();
+        },
+        { threshold: 0.3 }
+      );
+      this.nearby.observe(this);
     }
 
     disconnectedCallback() {
-      this.observer?.disconnect();
+      this.nearby?.disconnect();
+      this.inView?.disconnect();
+      this.wide?.removeEventListener('change', this.onLayout);
     }
 
-    reset() {
-      const n = this.cols;
-      const rows = this.rows;
-      const width = n * CELL;
-      const height = rows * CELL;
+    build() {
+      const cols = Number(this.dataset.cols) || 5;
+      const w = cols * CELL_W;
+      const h = (w * 2) / 3;
+      const cw = CELL_W;
+      const ch = h / ROWS;
+      const s = Math.min(cw, ch);
+      Object.assign(this, { cols, w, h, cw, ch, s });
 
       // Random tab direction for every inner edge, shared by the two pieces that meet there.
       const flip = () => (Math.random() < 0.5 ? 1 : -1);
-      const across = Array.from({ length: rows }, () => Array.from({ length: n }, flip));
-      const down = Array.from({ length: rows }, () => Array.from({ length: n }, flip));
-      const path = (cell) => {
-        const c = cell % n;
-        const r = Math.floor(cell / n);
-        const x = c * CELL;
-        const y = r * CELL;
+      const across = Array.from({ length: ROWS }, () => Array.from({ length: cols }, flip));
+      const down = Array.from({ length: ROWS }, () => Array.from({ length: cols }, flip));
+      const paths = Array.from({ length: cols * ROWS }, (_, cell) => {
+        const c = cell % cols;
+        const r = Math.floor(cell / cols);
+        const x = c * cw;
+        const y = r * ch;
         return (
           `M${x},${y}` +
-          edge(x, y, x + CELL, y, r > 0 ? -down[r - 1][c] : 0) +
-          edge(x + CELL, y, x + CELL, y + CELL, c < n - 1 ? across[r][c] : 0) +
-          edge(x + CELL, y + CELL, x, y + CELL, r < rows - 1 ? down[r][c] : 0) +
-          edge(x, y + CELL, x, y, c > 0 ? -across[r][c - 1] : 0) +
+          edge(x, y, x + cw, y, r > 0 ? -down[r - 1][c] : 0, s) +
+          edge(x + cw, y, x + cw, y + ch, c < cols - 1 ? across[r][c] : 0, s) +
+          edge(x + cw, y + ch, x, y + ch, r < ROWS - 1 ? down[r][c] : 0, s) +
+          edge(x, y + ch, x, y, c > 0 ? -across[r][c - 1] : 0, s) +
           ' Z'
         );
-      };
+      });
 
-      const svg = document.createElementNS(SVG_NS, 'svg');
-      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      svg.setAttribute('role', 'group');
-      svg.setAttribute('aria-label', this.dataset.boardLabel);
-      svg.setAttribute('aria-describedby', this.dataset.instructions);
+      // One shared photo pattern; every group's SVG fills its pieces from it
       const uid = Math.random().toString(36).slice(2);
+      const fill = `url(#jig-${uid})`;
+      const board = document.createElement('div');
+      board.className = 'puzzle__board';
+      board.setAttribute('role', 'group');
+      board.setAttribute('aria-label', this.dataset.boardLabel);
+      board.setAttribute('aria-describedby', this.dataset.instructions);
+      board.innerHTML =
+        `<svg class="puzzle__defs" aria-hidden="true" focusable="false"><defs>` +
+        `<pattern id="jig-${uid}" patternUnits="userSpaceOnUse" width="${w}" height="${h}">` +
+        `<image width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice"/></pattern></defs></svg>`;
+      board.querySelector('image').setAttribute('href', this.dataset.image);
+      // No "save image" or "copy" menu on long-press or right-click
+      board.addEventListener('contextmenu', (event) => event.preventDefault());
+      this.board = board;
 
-      const count = n * rows;
-      let defs = '';
-      for (let cell = 0; cell < count; cell++) {
-        defs += `<clipPath id="jig-${uid}-${cell}"><path d="${path(cell)}"/></clipPath>`;
-      }
-      svg.innerHTML = `<defs>${defs}</defs><rect class="puzzle__base" width="${width}" height="${height}"/>`;
+      this.pieces = paths.map((d, cell) => {
+        const el = document.createElementNS(SVG_NS, 'path');
+        el.setAttribute('d', d);
+        el.setAttribute('fill', fill);
+        el.setAttribute('stroke', fill);
+        el.setAttribute('class', 'puzzle__piece');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', this.dataset.pieceLabel.replace('__N__', cell + 1));
+        const g = document.createElement('div');
+        g.className = 'puzzle__group';
+        const groupSvg = document.createElementNS(SVG_NS, 'svg');
+        groupSvg.append(el);
+        g.append(groupSvg);
+        board.append(g);
 
-      // slots[piece] is where that piece sits now. The missing piece's slot is the gap.
-      this.missing = count - 1;
-      this.slots = Array.from({ length: count }, (_, i) => i);
-      // Shuffle with random legal slides from the solved board, so it can always be solved.
-      let previous = -1;
-      for (let i = 0; i < count * 40 || this.isSolved(); i++) {
-        const gap = this.slots[this.missing];
-        const options = this.neighbours(gap).filter((slot) => slot !== previous);
-        const slot = options[Math.floor(Math.random() * options.length)];
-        this.slots[this.slots.indexOf(slot)] = gap;
-        this.slots[this.missing] = slot;
-        previous = gap;
-      }
-
-      this.pieces = this.slots.map((_, cell) => {
-        const g = document.createElementNS(SVG_NS, 'g');
-        g.setAttribute('class', 'puzzle__piece');
-        g.innerHTML =
-          `<image href="${this.dataset.image}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice" clip-path="url(#jig-${uid}-${cell})"/>` +
-          `<path d="${path(cell)}"/>`;
-        const piece = { g, cell };
-        if (cell === this.missing) {
-          g.classList.add('is-missing');
-          g.setAttribute('aria-hidden', 'true');
-        } else {
-          g.setAttribute('tabindex', '0');
-          g.setAttribute('role', 'button');
-          g.setAttribute('aria-label', this.dataset.pieceLabel.replace('__N__', cell + 1));
-          g.addEventListener('pointerdown', (event) => this.grab(event, piece));
-          g.addEventListener('keydown', (event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') return;
-            event.preventDefault();
-            this.slide(piece);
-          });
-        }
-        // The missing piece sits first so every other piece draws over its light outline.
-        if (cell === this.missing) svg.querySelector('.puzzle__base').after(g);
-        else svg.append(g);
+        const piece = {
+          el,
+          col: cell % cols,
+          row: Math.floor(cell / cols),
+          cx: ((cell % cols) + 0.5) * cw,
+          cy: (Math.floor(cell / cols) + 0.5) * ch,
+        };
+        piece.group = { g, svg: groupSvg, pieces: [piece], x: 0, y: 0, angle: 0 };
+        this.fit(piece.group);
+        el.addEventListener('pointerdown', (event) => this.grab(event, piece));
+        // touch-action is ignored on SVG shapes, so stop the page scrolling when a drag starts on a piece
+        el.addEventListener(
+          'touchstart',
+          (event) => {
+            if (!this.solved) event.preventDefault();
+          },
+          { passive: false }
+        );
+        el.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          event.preventDefault();
+          this.join(piece);
+        });
         return piece;
       });
-      this.pieces.forEach((piece) => this.place(piece));
-      this.refresh();
 
-      this.svg?.remove();
-      this.querySelector(':scope > img')?.remove();
-      this.svg = svg;
-      this.append(svg);
-      this.status.textContent = '';
-      this.section.classList.remove('is-solved');
+      this.append(board);
+      this.status = this.section.querySelector('[data-status]');
+      this.count = this.section.querySelector('[data-count]');
+      this.updateCount();
+
+      this.wide = matchMedia('(min-width: 750px)');
+      this.onLayout = () => this.layout();
+      this.wide.addEventListener('change', this.onLayout);
+      this.layout();
+      this.dataset.ready = '';
+      if (!reduceMotion()) this.stow();
     }
 
-    neighbours(slot) {
-      const n = this.cols;
-      const c = slot % n;
-      const r = Math.floor(slot / n);
-      const list = [];
-      if (c > 0) list.push(slot - 1);
-      if (c < n - 1) list.push(slot + 1);
-      if (r > 0) list.push(slot - n);
-      if (r < this.rows - 1) list.push(slot + n);
-      return list;
+    groups() {
+      return [...new Set(this.pieces.map((piece) => piece.group))];
     }
 
-    canMove(piece) {
-      return this.neighbours(this.slots[this.missing]).includes(this.slots[piece.cell]);
-    }
+    // Size the play area, then scatter the groups at random, keeping them from piling up.
+    layout() {
+      const { w, h, cw, ch, s } = this;
+      const bw = this.wide.matches ? w * 2.2 : w + s * 0.5;
+      const bh = this.wide.matches ? h * 1.3 : bw * 1.4;
+      this.setSize(bw, bh);
 
-    isSolved() {
-      return this.slots.every((slot, cell) => slot === cell);
-    }
+      // Pieces may roam past the play area: up around the heading, down over the top of the next section
+      // and out to the sides. Measured from the page and converted to puzzle units.
+      const stage = this.board.getBoundingClientRect();
+      const k = bw / stage.width;
+      const toSvg = (r) => ({
+        x0: (r.left - stage.left) * k,
+        x1: (r.right - stage.left) * k,
+        y0: (r.top - stage.top) * k,
+        y1: (r.bottom - stage.top) * k,
+      });
+      const section = toSvg(this.section.getBoundingClientRect());
+      const heading = this.section.querySelector('.puzzle__heading');
+      const room = Math.max(cw, ch) * 0.5;
+      this.area = {
+        x0: Math.max(section.x0 + room, -bw * 0.15),
+        x1: Math.min(section.x1 - room, bw * 1.15),
+        y0: heading ? toSvg(heading.getBoundingClientRect()).y0 - ch * 0.3 : 0,
+        y1: section.y1 + ch * 0.5,
+      };
+      // Pieces may land on the heading, but the counter stays readable
+      const counter = toSvg(this.count.getBoundingClientRect());
+      const covers = (x, y) =>
+        x > counter.x0 - cw * 0.55 && x < counter.x1 + cw * 0.55 && y > counter.y0 - ch * 0.45 && y < counter.y1 + ch * 0.45;
 
-    refresh() {
-      this.pieces.forEach((piece) => {
-        if (piece.cell === this.missing) return;
-        const movable = this.canMove(piece);
-        piece.g.classList.toggle('is-movable', movable);
-        piece.g.setAttribute('aria-disabled', String(!movable));
+      const groups = this.groups();
+      if (this.solved) return this.finish(groups[0]);
+
+      const { x0, x1 } = this.area;
+      // A few accent pieces outside the cluster, different every time:
+      // one or two against the ends of the heading, and one to three over the top of the next section
+      const between = (a, b) => a + Math.random() * (b - a);
+      const taken = [];
+      if (heading) {
+        const r = toSvg(heading.getBoundingClientRect());
+        const cy = (r.y0 + r.y1) / 2;
+        // Anywhere along the heading, over the letters or past its ends
+        const count = Math.random() < 0.5 ? 1 : 2;
+        for (let tries = 0; taken.length < count && tries < 100; tries++) {
+          const x = between(Math.max(r.x0 - cw * 0.75, x0 + cw / 2), Math.min(r.x1 + cw * 0.75, x1 - cw / 2));
+          const y = cy + ch * between(-0.4, 0.4);
+          if (taken.every(([tx]) => Math.abs(tx - x) > cw * 1.5)) taken.push([x, y]);
+        }
+      }
+      const below = 1 + Math.floor(Math.random() * 3);
+      for (let tries = 0, placed = 0; placed < below && tries < 200; tries++) {
+        const x = between(x0 + cw * 0.6, x1 - cw * 0.6);
+        const y = section.y1 + ch * between(-0.5, 0.25);
+        if (covers(x, y) || taken.some(([tx, ty]) => Math.hypot(tx - x, ty - y) < cw * 1.6)) continue;
+        taken.push([x, y]);
+        placed++;
+      }
+      const seeded = taken.length;
+      let gap = Math.max(cw, ch) * 1.1;
+      // Everything else gathers in a loose cluster inside the play area
+      const margin = Math.max(cw, ch) * 0.6;
+      groups.sort(() => Math.random() - 0.5).forEach((group, i) => {
+        let spot = i < seeded ? taken[i] : null;
+        for (let tries = 0; !spot; tries++) {
+          const x = margin + Math.random() * (bw - 2 * margin);
+          const y = margin + Math.random() * (bh - 2 * margin);
+          const free = tries > 2000 || !covers(x, y);
+          if (free && taken.every(([tx, ty]) => Math.hypot(tx - x, ty - y) > gap)) spot = [x, y];
+          // Not enough room at this spacing: allow a little more overlap
+          if (tries % 50 === 49) gap *= 0.92;
+        }
+        if (i >= seeded) taken.push(spot);
+        const anchor = group.pieces[0];
+        group.angle = group.pieces.length > 1 ? 0 : (Math.random() - 0.5) * 24;
+        this.move(group, spot[0] - anchor.cx, spot[1] - anchor.cy);
       });
     }
 
-    place(piece, extra = { x: 0, y: 0 }) {
-      const n = this.cols;
-      const slot = this.slots[piece.cell];
-      const x = ((slot % n) - (piece.cell % n)) * CELL + extra.x;
-      const y = (Math.floor(slot / n) - Math.floor(piece.cell / n)) * CELL + extra.y;
-      piece.g.style.transform = `translate(${x}px, ${y}px)`;
+    setSize(bw, bh) {
+      this.bw = bw;
+      this.bh = bh;
+      this.board.style.setProperty('--bw', bw);
+      this.board.style.setProperty('--bh', bh);
+      this.style.setProperty('--aspect', bw / bh);
     }
 
+    // Size a group's layer and SVG to just cover its pieces (plus room for the knobs)
+    fit(group) {
+      const { cw, ch } = this;
+      const m = this.s * 0.25;
+      const xs = group.pieces.map((p) => p.cx);
+      const ys = group.pieces.map((p) => p.cy);
+      const x0 = Math.min(...xs) - cw / 2 - m;
+      const y0 = Math.min(...ys) - ch / 2 - m;
+      const width = Math.max(...xs) - Math.min(...xs) + cw + 2 * m;
+      const height = Math.max(...ys) - Math.min(...ys) + ch + 2 * m;
+      group.svg.setAttribute('viewBox', `${x0} ${y0} ${width} ${height}`);
+      const anchor = group.pieces[0];
+      const style = group.g.style;
+      style.setProperty('--x0', x0);
+      style.setProperty('--y0', y0);
+      style.setProperty('--w', width);
+      style.setProperty('--h', height);
+      style.setProperty('--ox', anchor.cx - x0);
+      style.setProperty('--oy', anchor.cy - y0);
+    }
+
+    // Park every group off to the side it will land on, spun around, ready to be thrown in
+    stow() {
+      this.flying = true;
+      const far = (innerWidth / Math.max(this.board.getBoundingClientRect().width, 1)) * this.bw;
+      this.targets = this.groups().map((group) => {
+        const target = { group, x: group.x, y: group.y, angle: group.angle };
+        const fromLeft = group.pieces[0].cx + group.x < this.bw / 2;
+        const side = fromLeft ? -1 : 1;
+        group.x += side * far * (0.7 + Math.random() * 0.4);
+        group.y += (Math.random() - 0.5) * this.bh;
+        group.angle += side * (180 + Math.random() * 270);
+        group.g.style.transition = 'none';
+        this.place(group);
+        return target;
+      });
+    }
+
+    land() {
+      if (!this.targets) return;
+      this.board.getBoundingClientRect();
+      const order = this.targets.map((_, i) => i).sort(() => Math.random() - 0.5);
+      this.targets.forEach(({ group, x, y, angle }, i) => {
+        group.g.style.transition = '';
+        group.g.style.transitionDelay = `${order[i] * 60}ms`;
+        group.g.classList.add('is-flying');
+        Object.assign(group, { x, y, angle });
+        this.place(group);
+      });
+      setTimeout(() => {
+        for (const { group } of this.targets) {
+          group.g.classList.remove('is-flying');
+          group.g.style.transitionDelay = '';
+        }
+        this.targets = null;
+        this.flying = false;
+      }, 1200 + this.targets.length * 60);
+    }
+
+    place(group) {
+      const style = group.g.style;
+      style.setProperty('--x', group.x);
+      style.setProperty('--y', group.y);
+      style.setProperty('--a', group.angle);
+    }
+
+    // Move a group, keeping every piece inside the area pieces may roam
+    move(group, x, y) {
+      const { x0, x1, y0, y1 } = this.area;
+      const xs = group.pieces.map((p) => p.cx);
+      const ys = group.pieces.map((p) => p.cy);
+      group.x = clamp(x, x0 + this.cw / 2 - Math.min(...xs), x1 - this.cw / 2 - Math.max(...xs));
+      group.y = clamp(y, y0 + this.ch / 2 - Math.min(...ys), y1 - this.ch / 2 - Math.max(...ys));
+      this.place(group);
+    }
+
+    // Pointer position in puzzle units
     toSvg(event) {
-      const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(this.svg.getScreenCTM().inverse());
-      return { x: point.x, y: point.y };
+      const rect = this.board.getBoundingClientRect();
+      const unit = rect.width / this.bw;
+      return { x: (event.clientX - rect.left) / unit, y: (event.clientY - rect.top) / unit };
     }
 
     grab(event, piece) {
-      if (this.section.classList.contains('is-solved') || !this.canMove(piece)) return;
+      if (this.solved || this.flying || event.button > 0) return;
       event.preventDefault();
-      const n = this.cols;
-      const from = this.slots[piece.cell];
-      const gap = this.slots[this.missing];
-      // Unit step towards the gap; the drag only travels along it, between here and the gap.
-      const dir = { x: (gap % n) - (from % n), y: Math.floor(gap / n) - Math.floor(from / n) };
+      const group = piece.group;
+      // Lift the group above the others and straighten it
+      this.board.append(group.g);
+      piece.el.setPointerCapture(event.pointerId);
+      group.g.classList.add('is-dragging');
+      group.angle = 0;
+      this.move(group, group.x, group.y);
+
       const start = this.toSvg(event);
-      let along = 0;
-      let dragging = false;
-      piece.g.setPointerCapture(event.pointerId);
+      const from = { x: group.x, y: group.y };
       const move = (e) => {
         const point = this.toSvg(e);
-        const dx = point.x - start.x;
-        const dy = point.y - start.y;
-        if (!dragging && Math.hypot(dx, dy) < 6) return;
-        if (!dragging) {
-          dragging = true;
-          piece.g.classList.add('is-dragging');
-        }
-        along = Math.min(CELL, Math.max(0, dx * dir.x + dy * dir.y));
-        this.place(piece, { x: dir.x * along, y: dir.y * along });
+        this.move(group, from.x + point.x - start.x, from.y + point.y - start.y);
       };
       const up = () => {
-        piece.g.removeEventListener('pointermove', move);
-        piece.g.removeEventListener('pointerup', up);
-        piece.g.removeEventListener('pointercancel', up);
-        piece.g.classList.remove('is-dragging');
-        if (!dragging || along > CELL * 0.3) this.slide(piece);
-        else this.place(piece);
+        piece.el.removeEventListener('pointermove', move);
+        piece.el.removeEventListener('pointerup', up);
+        piece.el.removeEventListener('pointercancel', up);
+        group.g.classList.remove('is-dragging');
+        this.connect(group);
       };
-      piece.g.addEventListener('pointermove', move);
-      piece.g.addEventListener('pointerup', up);
-      piece.g.addEventListener('pointercancel', up);
+      piece.el.addEventListener('pointermove', move);
+      piece.el.addEventListener('pointerup', up);
+      piece.el.addEventListener('pointercancel', up);
     }
 
-    slide(piece) {
-      if (this.section.classList.contains('is-solved') || !this.canMove(piece)) return;
-      [this.slots[piece.cell], this.slots[this.missing]] = [this.slots[this.missing], this.slots[piece.cell]];
-      this.place(piece);
-      this.place(this.pieces[this.missing]);
-      this.refresh();
-      if (this.isSolved()) {
-        this.section.classList.add('is-solved');
-        this.pieces[this.missing].g.classList.remove('is-missing');
-        this.status.textContent = this.status.dataset.solved;
+    neighbours(piece) {
+      const { cols } = this;
+      const at = (c, r) => (c >= 0 && c < cols && r >= 0 && r < ROWS ? this.pieces[r * cols + c] : null);
+      return [at(piece.col - 1, piece.row), at(piece.col + 1, piece.row), at(piece.col, piece.row - 1), at(piece.col, piece.row + 1)].filter(Boolean);
+    }
+
+    // Join the group to any neighbour that lines up with it. A generous distance keeps it easy.
+    connect(group) {
+      const near = this.s * 0.3;
+      let found = true;
+      while (found) {
+        found = false;
+        for (const piece of group.pieces) {
+          const other = this.neighbours(piece).find(
+            (n) => n.group !== group && Math.hypot(n.group.x - group.x, n.group.y - group.y) < near
+          );
+          if (other) {
+            group = this.merge(group, other.group);
+            found = true;
+            break;
+          }
+        }
       }
+      this.checkSolved();
+    }
+
+    // Keyboard: Enter joins the piece's group to a neighbour, wherever it is
+    join(piece) {
+      if (this.solved || this.flying) return;
+      const group = piece.group;
+      const other = group.pieces.flatMap((p) => this.neighbours(p)).find((n) => n.group !== group);
+      if (other) this.merge(group, other.group);
+      piece.el.focus();
+      this.checkSolved();
+    }
+
+    // Snap group a onto group b and fold its pieces in
+    merge(a, b) {
+      b.angle = 0;
+      for (const piece of a.pieces) {
+        piece.group = b;
+        b.svg.append(piece.el);
+      }
+      b.pieces.push(...a.pieces);
+      a.g.remove();
+      this.fit(b);
+      this.board.append(b.g);
+      this.move(b, b.x, b.y);
+      for (const piece of b.pieces) {
+        piece.el.animate([{ filter: 'brightness(1.35)' }, { filter: 'brightness(1)' }], { duration: 500, easing: 'ease-out' });
+      }
+      this.updateCount();
+      return b;
+    }
+
+    // Counts pieces that have found at least one neighbour
+    updateCount() {
+      const joined = this.pieces.filter((piece) => piece.group.pieces.length > 1).length;
+      this.count.textContent = this.dataset.progress.replace('__J__', joined).replace('__T__', this.pieces.length);
+    }
+
+    checkSolved() {
+      const groups = this.groups();
+      if (groups.length > 1) return;
+      this.solved = true;
+      this.section.classList.add('is-solved');
+      this.status.textContent = this.status.dataset.solved;
+      for (const piece of this.pieces) {
+        piece.el.removeAttribute('tabindex');
+        piece.el.setAttribute('aria-disabled', 'true');
+      }
+      // Let the last piece settle, then glide the photo into its final place
+      setTimeout(() => this.finish(groups[0]), 400);
+    }
+
+    // Desktop: the photo slides left, beside the quote.
+    // Mobile: the play area shrinks to the photo, and the photo glides from where it was to full width.
+    finish(group) {
+      const { w, h } = this;
+      if (this.wide.matches) return this.move(group, this.bw * 0.03, (this.bh - h) / 2);
+
+      const before = group.g.getBoundingClientRect();
+      this.area = { x0: 0, y0: 0, x1: w, y1: h };
+      this.setSize(w, h);
+      group.g.style.transition = 'none';
+      Object.assign(group, { x: 0, y: 0, angle: 0 });
+      this.place(group);
+      const after = group.g.getBoundingClientRect();
+      const board = this.board.getBoundingClientRect();
+      group.g.style.transition = '';
+      if (!after.width || reduceMotion()) return;
+      // Scale the board around the photo's corner so the photo starts exactly where it was
+      const origin = `${after.left - board.left}px ${after.top - board.top}px`;
+      this.board.animate(
+        [
+          {
+            transformOrigin: origin,
+            transform: `translate(${before.left - after.left}px, ${before.top - after.top}px) scale(${before.width / after.width})`,
+          },
+          { transformOrigin: origin, transform: 'none' },
+        ],
+        { duration: 900, easing: 'cubic-bezier(0.2, 0, 0, 1)' }
+      );
     }
   }
 
@@ -335,19 +725,38 @@
   "name": "t:general.puzzle",
   "settings": [
     {
+      "type": "text",
+      "id": "heading",
+      "label": "t:labels.heading",
+      "default": "Piece it together"
+    },
+    {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "t:labels.heading_font",
+      "default": "anton_n4"
+    },
+    {
       "type": "image_picker",
       "id": "image",
       "label": "t:labels.image"
     },
     {
       "type": "select",
-      "id": "grid_size",
-      "label": "t:labels.grid_size",
+      "id": "difficulty",
+      "label": "t:labels.difficulty",
       "options": [
-        { "value": "3", "label": "t:options.grid_size.three" },
-        { "value": "4", "label": "t:options.grid_size.four" }
+        { "value": "easy", "label": "t:options.difficulty.easy" },
+        { "value": "medium", "label": "t:options.difficulty.medium" }
       ],
-      "default": "4"
+      "default": "medium"
+    },
+    {
+      "type": "textarea",
+      "id": "quote",
+      "label": "t:labels.quote",
+      "info": "t:info.puzzle_quote",
+      "default": "Dress like the places that made you."
     }
   ],
   "presets": [

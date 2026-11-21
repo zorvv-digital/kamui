@@ -213,8 +213,9 @@
     },
     "puzzle": {
       "board": "Jigsaw puzzle",
-      "instructions": "One piece is missing. Slide the pieces next to the empty space into it to rebuild the photo. Tap or drag a piece, or press Enter on it.",
+      "instructions": "Drag the pieces together to rebuild the photo. Pieces that belong next to each other snap together when they are close. On a keyboard, press Enter on a piece to join it to a neighbour.",
       "tile": "Piece {{ number }}",
+      "progress": "Pieces {{ joined }} / {{ total }}",
       "solved_message": "Puzzle complete."
     }
   }

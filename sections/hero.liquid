@@ -1,24 +1,27 @@
 {% liquid
   assign image_src = 'hero-desktop.webp' | asset_url
-  assign image_mobile_src = 'hero-mobile.webp' | asset_url
   assign image_alt = 'sections.hero.image_alt' | t
 
   # ponytail: one image size per breakpoint, add srcset widths if picked images load slowly
   if section.settings.image
     assign image_src = section.settings.image | image_url: width: 3840
-    assign image_mobile_src = image_src
     assign image_alt = section.settings.image.alt | default: image_alt
-  endif
-
-  if section.settings.image_mobile
-    assign image_mobile_src = section.settings.image_mobile | image_url: width: 1500
   endif
 %}
 
-<div class="hero full-width">
-  <div class="hero__media">
+{%- comment -%}
+  Without a dedicated mobile image, phones show the whole wide photo at the top (hero--fit)
+  instead of cropping it to a tall sliver.
+{%- endcomment -%}
+<div class="hero full-width{% unless section.settings.image_mobile %} hero--fit{% endunless %}">
+  <div class="hero__media" style="--hero-image: url('{{ image_src }}')">
     <picture>
-      <source media="(max-width: 749px)" srcset="{{ image_mobile_src }}">
+      {%- if section.settings.image_mobile -%}
+        <source
+          media="(max-width: 749px)"
+          srcset="{{ section.settings.image_mobile | image_url: width: 1500 }}"
+        >
+      {%- endif -%}
       <img
         src="{{ image_src }}"
         alt="{{ image_alt | escape }}"
@@ -170,6 +173,35 @@
           rgb(0 0 0 / 0.55)
         ),
         radial-gradient(ellipse at 50% 50%, transparent 40%, rgb(0 0 0 / 0.55));
+    }
+    /* Wide group photo on a tall screen: keep everyone in frame at the top and fade it into the dark,
+       with the copy below, rather than cropping to a sliver */
+    /* Photo and copy stack at the bottom of the full-height hero; spare height on tall phones
+       becomes dark space under the header, which the photo's top edge fades into */
+    .hero--fit .hero__media {
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: stretch;
+      padding-block-start: 0;
+    }
+    .hero--fit .hero__media picture {
+      position: relative;
+      flex: none;
+      align-self: center;
+      width: 100vw;
+      max-width: none;
+      height: calc(100vw / 1.05);
+      margin-block-end: -4.5rem;
+      mask-image: linear-gradient(transparent, #000 12%, #000 65%, transparent);
+    }
+    /* A blurred, darkened copy of the photo fills the rest of the screen, so the spare space glows instead of sitting flat black */
+    .hero--fit .hero__media::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--hero-image) center / cover;
+      filter: blur(28px) brightness(0.65);
+      transform: scale(1.2) scaleX(-1);
     }
   }
 {% endstylesheet %}

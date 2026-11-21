@@ -59,6 +59,7 @@
     "free_shipping_threshold": "Order value in rupees. Leave empty to hide the progress bar in the cart.",
     "grievance_officer": "Name, designation, and contact details. Shown in the footer.",
     "india_commerce": "Shown on product pages, the cart, and the footer. Product metafields in the custom namespace (country_of_origin, manufacturer, packer, importer, net_quantity) override these defaults.",
+    "puzzle_quote": "Shown beside the finished photo on desktop.",
     "trending_searches": "Search terms separated by commas. Shown as shortcuts on the search page."
   },
   "labels": {
@@ -73,12 +74,12 @@
     "default_country_of_origin": "Default country of origin",
     "default_manufacturer": "Default manufacturer, packer, or importer",
     "delivery_text": "Delivery time text",
+    "difficulty": "Difficulty",
     "facebook_link": "Facebook link",
     "foreground": "Foreground",
     "free_shipping_threshold": "Free shipping threshold",
     "grid_gap": "Grid spacing",
     "grid_item_width": "Grid item width",
-    "grid_size": "Grid size",
     "grievance_officer": "Grievance officer",
     "heading": "Heading",
     "heading_font": "Heading font",
@@ -98,6 +99,7 @@
     "payment_methods_text": "Payment methods text",
     "products": "Products",
     "products_to_show": "Products to show",
+    "quote": "Quote",
     "show_related": "Show related products",
     "story": "Story",
     "subheading": "Subheading",
@@ -117,9 +119,9 @@
       "horizontal": "Horizontal",
       "vertical": "Vertical"
     },
-    "grid_size": {
-      "three": "5 × 3",
-      "four": "6 × 4"
+    "difficulty": {
+      "easy": "Easy, 12 pieces",
+      "medium": "Medium, 15 pieces"
     },
     "page_width": {
       "narrow": "Narrow",
