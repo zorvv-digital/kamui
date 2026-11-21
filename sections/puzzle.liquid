@@ -1,9 +1,8 @@
 {% liquid
-  assign image_src = 'hero-mobile.webp' | asset_url
+  assign image_src = 'puzzle-kamui.webp' | asset_url
   if section.settings.image
-    assign image_src = section.settings.image | image_url: width: 1200, height: 1200, crop: 'center'
+    assign image_src = section.settings.image | image_url: width: 1800, height: 1200, crop: 'center'
   endif
-  assign size = section.settings.grid_size | plus: 0
   assign instructions_id = 'PuzzleInstructions-' | append: section.id
 %}
 
@@ -13,175 +12,128 @@
     class="visually-hidden"
     aria-live="polite"
     data-status
-    data-solved-one="{{ 'sections.puzzle.solved' | t: count: 1 }}"
-    data-solved-other="{{ 'sections.puzzle.solved' | t: count: 0 }}"
+    data-solved="{{ 'sections.puzzle.solved_message' | t }}"
   ></p>
 
   <div class="puzzle__inner">
-  <kamui-puzzle
-    class="puzzle__stage"
-    data-size="{{ size }}"
-    data-image="{{ image_src }}"
-    data-board-label="{{ 'sections.puzzle.board' | t }}"
-    data-tile-label="{{ 'sections.puzzle.tile' | t: number: '__N__' }}"
-    data-instructions="{{ instructions_id }}"
-  >
-    <figure class="puzzle__figure">
-      <img src="{{ image_src }}" alt="" width="1200" height="1200" loading="lazy">
-    </figure>
-  </kamui-puzzle>
-
-    {% comment %} The small picture is the goal: what the board looks like when solved. {% endcomment %}
-    <div class="puzzle__side">
-      <img class="puzzle__preview" src="{{ image_src }}" alt="" width="240" height="240" loading="lazy">
-      <button type="button" class="button puzzle__shuffle" data-shuffle hidden>
-        {{ 'sections.puzzle.shuffle' | t }}
-      </button>
-    </div>
+    <kamui-jigsaw
+      class="puzzle__stage"
+      data-size="{{ section.settings.grid_size }}"
+      data-image="{{ image_src }}"
+      data-board-label="{{ 'sections.puzzle.board' | t }}"
+      data-piece-label="{{ 'sections.puzzle.tile' | t: number: '__N__' }}"
+      data-instructions="{{ instructions_id }}"
+    >
+      <img src="{{ image_src }}" alt="" width="1800" height="1200" loading="lazy">
+    </kamui-jigsaw>
   </div>
 </div>
 
 {% stylesheet %}
   .puzzle {
     padding: var(--space-section) var(--page-margin);
-    border-block: 1px solid var(--color-rule);
-    background: var(--color-surface);
+    background: #fff;
   }
   .puzzle__inner {
-    --frame: var(--space-3);
-    --shadow: var(--space-3);
     display: grid;
-    grid-template-columns: minmax(0, 34rem) auto;
-    align-items: end;
-    justify-content: center;
-    gap: calc(var(--space-6) + var(--shadow));
+    justify-items: center;
+    gap: var(--space-6);
   }
   .puzzle__stage {
-    position: relative;
     display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    border: 1px solid var(--color-foreground);
-    background: var(--color-background);
-    box-shadow: var(--shadow) var(--shadow) 0 var(--color-foreground);
+    /* Whole board fits in one screen */
+    width: min(100%, 56rem, (100svh - 14rem) * 1.5);
+    aspect-ratio: 3 / 2;
   }
-  .puzzle__side {
-    display: grid;
-    gap: var(--space-4);
-    width: 9rem;
-  }
-  .puzzle__preview {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border: 1px solid var(--color-foreground);
-  }
-  .puzzle:not(.is-playing) .puzzle__preview {
-    visibility: hidden;
-  }
-  .puzzle__shuffle {
-    background: var(--color-background);
-  }
-  .puzzle__shuffle:hover {
-    background: var(--color-foreground);
-    color: var(--color-background);
-  }
-  @media (max-width: 749px) {
-    .puzzle__inner {
-      --frame: var(--space-2);
-      --shadow: var(--space-2);
-      grid-template-columns: minmax(0, 1fr);
-      gap: calc(var(--space-5) + var(--shadow));
-      padding-inline-end: var(--shadow);
-    }
-    .puzzle__side {
-      grid-template-columns: 5rem 1fr;
-      align-items: stretch;
-      width: auto;
-    }
-  }
-  .puzzle__figure {
-    position: absolute;
-    inset: var(--frame);
-    margin: 0;
-    overflow: hidden;
-    background: var(--color-surface);
-  }
-  .puzzle__figure img {
+  .puzzle__stage > img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    transition: opacity 0.6s var(--ease-out);
   }
-  .puzzle.is-playing .puzzle__figure img {
-    opacity: 0.12;
-  }
-  .puzzle.is-solved .puzzle__figure img {
-    opacity: 1;
-  }
-  .puzzle__board {
-    position: absolute;
-    inset: var(--frame);
-    overflow: hidden;
-    transition: opacity 0.6s var(--ease-out);
-  }
-  .puzzle__board:focus-visible {
-    outline-offset: 4px;
-  }
-  .puzzle.is-solved .puzzle__board {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .puzzle__tile {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: calc(100% / var(--size));
-    height: calc(100% / var(--size));
-    padding: 0;
-    overflow: hidden;
-    border: 0;
-    background: none;
-    box-shadow: inset 0 0 0 1px var(--color-background);
-    translate: calc(var(--x) * 100%) calc(var(--y) * 100%);
-    transition: translate 180ms var(--ease-out), filter var(--duration-fast) var(--ease-out);
-    touch-action: none;
-    cursor: pointer;
-  }
-  .puzzle__tile img {
-    position: absolute;
-    top: calc(var(--row) * -100%);
-    left: calc(var(--col) * -100%);
-    width: calc(var(--size) * 100%);
-    max-width: none;
-    height: calc(var(--size) * 100%);
-    object-fit: cover;
-    pointer-events: none;
+  .puzzle__stage svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
     user-select: none;
   }
-  .puzzle__board.is-instant .puzzle__tile {
+  .puzzle__base {
+    fill: var(--color-foreground);
+  }
+  .puzzle__piece {
+    touch-action: none;
+    outline: none;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .puzzle__piece.is-movable {
+    cursor: grab;
+  }
+  .puzzle__piece image {
+    transition: opacity 0.6s var(--ease-out);
+  }
+  /* The empty slot: the missing piece drawn as a light outline under the others */
+  .puzzle__piece.is-missing {
+    pointer-events: none;
+  }
+  .puzzle__piece.is-missing image {
+    opacity: 0;
+  }
+  .puzzle__piece.is-missing path {
+    fill: color-mix(in srgb, var(--color-foreground) 10%, #fff);
+    stroke: none;
+  }
+  .puzzle__piece path {
+    fill: none;
+    stroke: rgb(0 0 0 / 0.6);
+    stroke-width: 1.5;
+  }
+  .puzzle__piece.is-dragging {
+    cursor: grabbing;
     transition: none;
   }
-  .puzzle__tile.is-movable:hover {
-    filter: brightness(1.08);
+  .puzzle__piece:focus-visible path {
+    stroke: var(--color-brand);
+    stroke-width: 5;
+  }
+  .puzzle.is-solved .puzzle__piece {
+    pointer-events: none;
+  }
+  .puzzle.is-solved .puzzle__piece path {
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
   }
 {% endstylesheet %}
 
 {% javascript %}
-  class KamuiPuzzle extends HTMLElement {
-    connectedCallback() {
-      this.size = Number(this.dataset.size) || 3;
-      this.section = this.closest('[data-puzzle]');
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const CELL = 100;
 
-      if (!('IntersectionObserver' in window)) {
-        this.build();
-        return;
-      }
+  // One side of a piece from (x0,y0) to (x1,y1). tab is 1 (knob out), -1 (hole in) or 0 (flat).
+  function edge(x0, y0, x1, y1, tab) {
+    if (!tab) return ` L${x1},${y1}`;
+    const dx = (x1 - x0) / CELL;
+    const dy = (y1 - y0) / CELL;
+    const point = (u, v) => `${x0 + dx * u + dy * v * tab},${y0 + dy * u - dx * v * tab}`;
+    return (
+      ` L${point(36, 0)}` +
+      ` C${point(40, 0)} ${point(30, 22)} ${point(50, 22)}` +
+      ` C${point(70, 22)} ${point(60, 0)} ${point(64, 0)}` +
+      ` L${x1},${y1}`
+    );
+  }
+
+  // Sliding jigsaw: the last piece is missing, and only pieces next to the gap can move into it.
+  class KamuiJigsaw extends HTMLElement {
+    connectedCallback() {
+      // Rows from the setting; columns keep the board at roughly 3:2.
+      this.rows = Number(this.dataset.size) || 4;
+      this.cols = Math.round(this.rows * 1.5);
+      this.section = this.closest('[data-puzzle]');
       this.observer = new IntersectionObserver(
         (entries) => {
           if (!entries.some((entry) => entry.isIntersecting)) return;
           this.observer.disconnect();
-          this.build();
+          this.status = this.section.querySelector('[data-status]');
+          this.reset();
         },
         { rootMargin: '200px' }
       );
@@ -192,168 +144,190 @@
       this.observer?.disconnect();
     }
 
-    build() {
-      const n = this.size;
-      const count = n * n;
-      this.status = this.section.querySelector('[data-status]');
-      this.board = document.createElement('div');
-      this.board.className = 'puzzle__board';
-      this.board.tabIndex = 0;
-      this.board.setAttribute('role', 'group');
-      this.board.setAttribute('aria-label', this.dataset.boardLabel);
-      this.board.setAttribute('aria-describedby', this.dataset.instructions);
-      this.board.style.setProperty('--size', n);
+    reset() {
+      const n = this.cols;
+      const rows = this.rows;
+      const width = n * CELL;
+      const height = rows * CELL;
 
-      this.tiles = [];
-      for (let i = 0; i < count - 1; i++) {
-        const tile = document.createElement('button');
-        tile.type = 'button';
-        tile.className = 'puzzle__tile';
-        tile.tabIndex = -1;
-        tile.dataset.tile = i;
-        tile.setAttribute('aria-label', this.dataset.tileLabel.replace('__N__', i + 1));
-        tile.style.setProperty('--col', i % n);
-        tile.style.setProperty('--row', Math.floor(i / n));
-        const img = document.createElement('img');
-        img.src = this.dataset.image;
-        img.alt = '';
-        img.draggable = false;
-        tile.append(img);
-        this.tiles.push(tile);
-        this.board.append(tile);
+      // Random tab direction for every inner edge, shared by the two pieces that meet there.
+      const flip = () => (Math.random() < 0.5 ? 1 : -1);
+      const across = Array.from({ length: rows }, () => Array.from({ length: n }, flip));
+      const down = Array.from({ length: rows }, () => Array.from({ length: n }, flip));
+      const path = (cell) => {
+        const c = cell % n;
+        const r = Math.floor(cell / n);
+        const x = c * CELL;
+        const y = r * CELL;
+        return (
+          `M${x},${y}` +
+          edge(x, y, x + CELL, y, r > 0 ? -down[r - 1][c] : 0) +
+          edge(x + CELL, y, x + CELL, y + CELL, c < n - 1 ? across[r][c] : 0) +
+          edge(x + CELL, y + CELL, x, y + CELL, r < rows - 1 ? down[r][c] : 0) +
+          edge(x, y + CELL, x, y, c > 0 ? -across[r][c - 1] : 0) +
+          ' Z'
+        );
+      };
+
+      const svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.setAttribute('role', 'group');
+      svg.setAttribute('aria-label', this.dataset.boardLabel);
+      svg.setAttribute('aria-describedby', this.dataset.instructions);
+      const uid = Math.random().toString(36).slice(2);
+
+      const count = n * rows;
+      let defs = '';
+      for (let cell = 0; cell < count; cell++) {
+        defs += `<clipPath id="jig-${uid}-${cell}"><path d="${path(cell)}"/></clipPath>`;
       }
-      this.append(this.board);
+      svg.innerHTML = `<defs>${defs}</defs><rect class="puzzle__base" width="${width}" height="${height}"/>`;
 
-      this.board.addEventListener('click', (event) => this.onClick(event));
-      this.board.addEventListener('keydown', (event) => this.onKey(event));
-      this.board.addEventListener('pointerdown', (event) => this.onPointerDown(event));
-      this.board.addEventListener('pointerup', (event) => this.onPointerUp(event));
-      const shuffle = this.section.querySelector('[data-shuffle]');
-      shuffle.hidden = false;
-      shuffle.addEventListener('click', () => this.shuffle());
-      this.section.classList.add('is-playing');
-      this.board.classList.add('is-instant');
-      this.shuffle();
-      requestAnimationFrame(() => requestAnimationFrame(() => this.board.classList.remove('is-instant')));
-    }
-
-    get empty() {
-      return this.cells.indexOf(this.cells.length - 1);
-    }
-
-    neighbours(cell) {
-      const n = this.size;
-      const x = cell % n;
-      const y = Math.floor(cell / n);
-      const result = [];
-      if (x > 0) result.push(cell - 1);
-      if (x < n - 1) result.push(cell + 1);
-      if (y > 0) result.push(cell - n);
-      if (y < n - 1) result.push(cell + n);
-      return result;
-    }
-
-    swap(cell) {
-      const empty = this.empty;
-      [this.cells[cell], this.cells[empty]] = [this.cells[empty], this.cells[cell]];
-    }
-
-    shuffle() {
-      const count = this.size * this.size;
-      this.cells = Array.from({ length: count }, (_, index) => index);
+      // slots[piece] is where that piece sits now. The missing piece's slot is the gap.
+      this.missing = count - 1;
+      this.slots = Array.from({ length: count }, (_, i) => i);
+      // Shuffle with random legal slides from the solved board, so it can always be solved.
       let previous = -1;
-      for (let step = 0; step < 150 || this.isSolved(); step++) {
-        const empty = this.empty;
-        const options = this.neighbours(empty).filter((cell) => cell !== previous);
-        previous = empty;
-        this.swap(options[Math.floor(Math.random() * options.length)]);
+      for (let i = 0; i < count * 40 || this.isSolved(); i++) {
+        const gap = this.slots[this.missing];
+        const options = this.neighbours(gap).filter((slot) => slot !== previous);
+        const slot = options[Math.floor(Math.random() * options.length)];
+        this.slots[this.slots.indexOf(slot)] = gap;
+        this.slots[this.missing] = slot;
+        previous = gap;
       }
-      this.moves = 0;
-      this.solved = false;
+
+      this.pieces = this.slots.map((_, cell) => {
+        const g = document.createElementNS(SVG_NS, 'g');
+        g.setAttribute('class', 'puzzle__piece');
+        g.innerHTML =
+          `<image href="${this.dataset.image}" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice" clip-path="url(#jig-${uid}-${cell})"/>` +
+          `<path d="${path(cell)}"/>`;
+        const piece = { g, cell };
+        if (cell === this.missing) {
+          g.classList.add('is-missing');
+          g.setAttribute('aria-hidden', 'true');
+        } else {
+          g.setAttribute('tabindex', '0');
+          g.setAttribute('role', 'button');
+          g.setAttribute('aria-label', this.dataset.pieceLabel.replace('__N__', cell + 1));
+          g.addEventListener('pointerdown', (event) => this.grab(event, piece));
+          g.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            this.slide(piece);
+          });
+        }
+        // The missing piece sits first so every other piece draws over its light outline.
+        if (cell === this.missing) svg.querySelector('.puzzle__base').after(g);
+        else svg.append(g);
+        return piece;
+      });
+      this.pieces.forEach((piece) => this.place(piece));
+      this.refresh();
+
+      this.svg?.remove();
+      this.querySelector(':scope > img')?.remove();
+      this.svg = svg;
+      this.append(svg);
       this.status.textContent = '';
       this.section.classList.remove('is-solved');
-      this.render();
+    }
+
+    neighbours(slot) {
+      const n = this.cols;
+      const c = slot % n;
+      const r = Math.floor(slot / n);
+      const list = [];
+      if (c > 0) list.push(slot - 1);
+      if (c < n - 1) list.push(slot + 1);
+      if (r > 0) list.push(slot - n);
+      if (r < this.rows - 1) list.push(slot + n);
+      return list;
+    }
+
+    canMove(piece) {
+      return this.neighbours(this.slots[this.missing]).includes(this.slots[piece.cell]);
     }
 
     isSolved() {
-      return this.cells.every((tile, cell) => tile === cell);
+      return this.slots.every((slot, cell) => slot === cell);
     }
 
-    move(cell) {
-      if (this.solved || !this.neighbours(this.empty).includes(cell)) return;
-      this.swap(cell);
-      this.moves += 1;
-      if (this.isSolved()) {
-        this.solved = true;
-        this.section.classList.add('is-solved');
-        const template = this.moves === 1 ? this.status.dataset.solvedOne : this.status.dataset.solvedOther;
-        this.status.textContent = template.replace(/\d+/, this.moves);
-      }
-      this.render();
-    }
-
-    render() {
-      const n = this.size;
-      const movable = this.neighbours(this.empty);
-      this.cells.forEach((tileIndex, cell) => {
-        const tile = this.tiles[tileIndex];
-        if (!tile) return;
-        tile.style.setProperty('--x', cell % n);
-        tile.style.setProperty('--y', Math.floor(cell / n));
-        tile.classList.toggle('is-movable', movable.includes(cell));
+    refresh() {
+      this.pieces.forEach((piece) => {
+        if (piece.cell === this.missing) return;
+        const movable = this.canMove(piece);
+        piece.g.classList.toggle('is-movable', movable);
+        piece.g.setAttribute('aria-disabled', String(!movable));
       });
     }
 
-    cellOf(tile) {
-      return this.cells.indexOf(Number(tile.dataset.tile));
+    place(piece, extra = { x: 0, y: 0 }) {
+      const n = this.cols;
+      const slot = this.slots[piece.cell];
+      const x = ((slot % n) - (piece.cell % n)) * CELL + extra.x;
+      const y = (Math.floor(slot / n) - Math.floor(piece.cell / n)) * CELL + extra.y;
+      piece.g.style.transform = `translate(${x}px, ${y}px)`;
     }
 
-    onClick(event) {
-      const tile = event.target.closest('.puzzle__tile');
-      if (!tile || this.swiped) {
-        this.swiped = false;
-        return;
-      }
-      this.move(this.cellOf(tile));
+    toSvg(event) {
+      const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(this.svg.getScreenCTM().inverse());
+      return { x: point.x, y: point.y };
     }
 
-    onKey(event) {
-      const n = this.size;
-      const empty = this.empty;
-      const x = empty % n;
-      const y = Math.floor(empty / n);
-      const targets = {
-        ArrowLeft: x < n - 1 ? empty + 1 : -1,
-        ArrowRight: x > 0 ? empty - 1 : -1,
-        ArrowUp: y < n - 1 ? empty + n : -1,
-        ArrowDown: y > 0 ? empty - n : -1,
-      };
-      if (!(event.key in targets)) return;
+    grab(event, piece) {
+      if (this.section.classList.contains('is-solved') || !this.canMove(piece)) return;
       event.preventDefault();
-      if (targets[event.key] >= 0) this.move(targets[event.key]);
+      const n = this.cols;
+      const from = this.slots[piece.cell];
+      const gap = this.slots[this.missing];
+      // Unit step towards the gap; the drag only travels along it, between here and the gap.
+      const dir = { x: (gap % n) - (from % n), y: Math.floor(gap / n) - Math.floor(from / n) };
+      const start = this.toSvg(event);
+      let along = 0;
+      let dragging = false;
+      piece.g.setPointerCapture(event.pointerId);
+      const move = (e) => {
+        const point = this.toSvg(e);
+        const dx = point.x - start.x;
+        const dy = point.y - start.y;
+        if (!dragging && Math.hypot(dx, dy) < 6) return;
+        if (!dragging) {
+          dragging = true;
+          piece.g.classList.add('is-dragging');
+        }
+        along = Math.min(CELL, Math.max(0, dx * dir.x + dy * dir.y));
+        this.place(piece, { x: dir.x * along, y: dir.y * along });
+      };
+      const up = () => {
+        piece.g.removeEventListener('pointermove', move);
+        piece.g.removeEventListener('pointerup', up);
+        piece.g.removeEventListener('pointercancel', up);
+        piece.g.classList.remove('is-dragging');
+        if (!dragging || along > CELL * 0.3) this.slide(piece);
+        else this.place(piece);
+      };
+      piece.g.addEventListener('pointermove', move);
+      piece.g.addEventListener('pointerup', up);
+      piece.g.addEventListener('pointercancel', up);
     }
 
-    onPointerDown(event) {
-      const tile = event.target.closest('.puzzle__tile');
-      this.drag = tile ? { tile, x: event.clientX, y: event.clientY } : null;
-    }
-
-    onPointerUp(event) {
-      if (!this.drag) return;
-      const dx = event.clientX - this.drag.x;
-      const dy = event.clientY - this.drag.y;
-      const cell = this.cellOf(this.drag.tile);
-      this.drag = null;
-      if (Math.hypot(dx, dy) < 20) return;
-
-      this.swiped = true;
-      const empty = this.empty;
-      const direction = Math.abs(dx) > Math.abs(dy) ? Math.sign(dx) : Math.sign(dy) * this.size;
-      if (cell + direction === empty && this.neighbours(empty).includes(cell)) this.move(cell);
+    slide(piece) {
+      if (this.section.classList.contains('is-solved') || !this.canMove(piece)) return;
+      [this.slots[piece.cell], this.slots[this.missing]] = [this.slots[this.missing], this.slots[piece.cell]];
+      this.place(piece);
+      this.place(this.pieces[this.missing]);
+      this.refresh();
+      if (this.isSolved()) {
+        this.section.classList.add('is-solved');
+        this.pieces[this.missing].g.classList.remove('is-missing');
+        this.status.textContent = this.status.dataset.solved;
+      }
     }
   }
 
-  if (!customElements.get('kamui-puzzle')) customElements.define('kamui-puzzle', KamuiPuzzle);
+  if (!customElements.get('kamui-jigsaw')) customElements.define('kamui-jigsaw', KamuiJigsaw);
 {% endjavascript %}
 
 {% schema %}
@@ -373,7 +347,7 @@
         { "value": "3", "label": "t:options.grid_size.three" },
         { "value": "4", "label": "t:options.grid_size.four" }
       ],
-      "default": "3"
+      "default": "4"
     }
   ],
   "presets": [

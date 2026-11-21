@@ -178,7 +178,7 @@
       </ul>
 
       {% comment %}
-        Plain tiles, not the product-card snippet: the card sets a view-transition-name,
+        Plain tiles, not the product-card snippet: the card is a view-transition target,
         and the same product may already be on the page.
       {% endcomment %}
       {% assign menu_collection = section.settings.menu_collection | default: collections.all %}
@@ -308,7 +308,6 @@
     height: var(--header-height);
     padding-inline: max(var(--page-margin), 3vw);
     color: var(--color-foreground);
-    view-transition-name: site-header;
   }
   /* A hero slides underneath the header, see sections/hero.liquid */
   body:has(.hero) .header {

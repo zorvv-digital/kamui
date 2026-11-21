@@ -200,23 +200,22 @@
     "hero": {
       "early_access": "Get early access",
       "email": "Email",
-      "image_alt": "Three men in vintage tailoring in a wood-panelled library",
+      "image_alt": "Five people in Kamui tees standing in front of a weathered stone doorway",
       "subscribe": "Subscribe",
       "subscribe_title": "Subscribe for early access entry",
       "subscribed": "You're on the list."
+    },
+    "journey": {
+      "image_alt": "Two people in Kamui tees on either side of an old cannon at a fort wall"
     },
     "pattern": {
       "title": "Pattern"
     },
     "puzzle": {
-      "board": "Sliding puzzle",
-      "instructions": "Tap or drag a tile next to the gap to slide it. Arrow keys work too.",
-      "shuffle": "Shuffle",
-      "tile": "Tile {{ number }}",
-      "solved": {
-        "one": "Solved in {{ count }} move",
-        "other": "Solved in {{ count }} moves"
-      }
+      "board": "Jigsaw puzzle",
+      "instructions": "One piece is missing. Slide the pieces next to the empty space into it to rebuild the photo. Tap or drag a piece, or press Enter on it.",
+      "tile": "Piece {{ number }}",
+      "solved_message": "Puzzle complete."
     }
   }
 }

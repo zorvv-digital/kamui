@@ -11,6 +11,72 @@
     {% render 'meta-tags' %}
 
     {{ content_for_header }}
+
+    {% comment %}
+      Product image morph between a card and its product page (cross-document view transition).
+      Only the one product being opened or returned from gets a name, so the browser animates a
+      single image instead of snapshotting every card on the page.
+    {% endcomment %}
+    <script>
+      (() => {
+        const KEY = 'vt-product';
+        let named = null;
+        const handleOf = (url) => (url ? new URL(url).pathname.match(/\/products\/([^/?#]+)/)?.[1] : null);
+        const find = (handle) =>
+          handle &&
+          (document.querySelector(`[data-vt-main="${CSS.escape(handle)}"]`) ||
+            document.querySelector(`[data-vt-card="${CSS.escape(handle)}"]`));
+        const clear = () => {
+          if (named) named.style.viewTransitionName = '';
+          named = null;
+        };
+        const name = (el) => {
+          clear();
+          if (!el) return;
+          el.style.viewTransitionName = 'product-image';
+          named = el;
+        };
+
+        addEventListener('pageswap', (event) => {
+          sessionStorage.removeItem(KEY);
+          if (!event.viewTransition || !event.activation) return;
+          const here = document.querySelector('[data-vt-main]')?.dataset.vtMain;
+          const next = handleOf(event.activation.entry.url);
+          const back = event.activation.navigationType === 'traverse';
+          // Opening a product: morph its card. Going back or elsewhere: morph this page's product.
+          const handle = !back && next && find(next) ? next : here || next;
+          if (!find(handle)) return;
+          document.documentElement.classList.add('is-leaving');
+          name(find(handle));
+          sessionStorage.setItem(KEY, handle);
+        });
+
+        addEventListener('pagereveal', (event) => {
+          document.documentElement.classList.remove('is-leaving');
+          const handle = sessionStorage.getItem(KEY);
+          sessionStorage.removeItem(KEY);
+          clear();
+          if (!event.viewTransition || !handle) return;
+          name(find(handle));
+          event.viewTransition.finished.finally(clear);
+        });
+      })();
+    </script>
+
+    {% comment %} Hold the first paint until the page content is parsed, so the morph has a target. {% endcomment %}
+    <link rel="expect" href="#MainContentEnd" blocking="render">
+
+    {% comment %} Load a product page on hover so its image is ready before the morph starts. {% endcomment %}
+    <script type="speculationrules">
+      {
+        "prerender": [
+          {
+            "where": { "or": [{ "href_matches": "/products/*" }, { "href_matches": "/collections/*/products/*" }] },
+            "eagerness": "moderate"
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
@@ -20,8 +86,26 @@
 
     <main id="MainContent" tabindex="-1">
       {{ content_for_layout }}
+      <span id="MainContentEnd" hidden></span>
     </main>
 
     {% sections 'footer-group' %}
+
+    {% if template.name == 'index' %}
+      <script src="{{ 'lenis.min.js' | asset_url }}" defer></script>
+      <script type="module">
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          const lenis = new Lenis({
+            lerp: 0.1,
+            anchors: true,
+            prevent: (node) => node.closest('[popover]'),
+          });
+          requestAnimationFrame(function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          });
+        }
+      </script>
+    {% endif %}
   </body>
 </html>

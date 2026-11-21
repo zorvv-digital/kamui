@@ -47,7 +47,7 @@
           class="product__media"
           data-media
           {% if forloop.first %}
-            style="view-transition-name: product-{{ product.id }}"
+            data-vt-main="{{ product.handle }}"
           {% endif %}
         >
           {% if media.media_type == 'image' %}
@@ -70,7 +70,7 @@
           {% endif %}
         </li>
       {% else %}
-        <li class="product__media" style="view-transition-name: product-{{ product.id }}">
+        <li class="product__media" data-vt-main="{{ product.handle }}">
           {{ 'placeholder-tee.svg' | inline_asset_content }}
         </li>
       {% endfor %}

@@ -51,20 +51,51 @@
       ],
       "settings": {}
     },
-    "pattern": {
-      "type": "pattern",
+    "puzzle": {
+      "type": "puzzle",
       "settings": {}
     },
     "journey": {
       "type": "journey",
-      "settings": {}
+      "blocks": {
+        "chapter_1": {
+          "type": "chapter",
+          "settings": {
+            "title": "Where it started",
+            "text": "A few friends, one sketchbook and too many late nights. We wanted clothes that felt like the places we grew up around: old forts, worn walls, red earth after the rain."
+          }
+        },
+        "chapter_2": {
+          "type": "chapter",
+          "settings": {
+            "title": "How we make it",
+            "text": "Every piece starts as a drawing. Heavy cotton, prints we argue over, fits we wear ourselves until they feel right. Nothing leaves until we would wear it every day."
+          }
+        },
+        "chapter_3": {
+          "type": "chapter",
+          "settings": {
+            "title": "Where it goes",
+            "text": "Drop 1 is the first chapter: three tees, made slowly, for people who notice the details. Kamui is still in the making, and so is the story."
+          }
+        }
+      },
+      "block_order": [
+        "chapter_1",
+        "chapter_2",
+        "chapter_3"
+      ],
+      "settings": {
+        "heading": "Our journey",
+        "lead": "Kamui was a feeling long before it was a label."
+      }
     }
   },
   "order": [
     "main",
     "featured_products",
     "collection_tiles",
-    "pattern",
+    "puzzle",
     "journey"
   ]
 }

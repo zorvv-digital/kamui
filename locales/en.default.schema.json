@@ -14,6 +14,7 @@
     "block": "Block",
     "blog": "Blog",
     "cart": "Cart",
+    "chapter": "Chapter",
     "collection": "Collection",
     "collections": "Collections",
     "collection_card": "Collection card",
@@ -117,8 +118,8 @@
       "vertical": "Vertical"
     },
     "grid_size": {
-      "three": "3 × 3",
-      "four": "4 × 4"
+      "three": "5 × 3",
+      "four": "6 × 4"
     },
     "page_width": {
       "narrow": "Narrow",

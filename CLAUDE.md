@@ -12,10 +12,12 @@ Shopify theme for Kamui, built on Shopify's Skeleton theme. `config/settings_sch
 
 Git `main` is the source of truth. Make changes there and push them to themes from it, not in a theme first.
 
-- Homepage (`templates/index.json`): `hero`, `featured-products`, `collection-tiles`, `pattern`, `journey`.
+- Homepage (`templates/index.json`): `hero`, `featured-products`, `collection-tiles`, `puzzle`, `journey`. Lenis smooth scroll runs on the homepage only (`layout/theme.liquid`).
 - `sections/header.liquid`: optional announcement ticker (currently no announcements), centered logo, icon row (search, menu, account, cart), predictive search, and the menu drawer.
 - `sections/hero.liquid`: full-height image with the heading, subheading, and early access button at bottom left.
-- `sections/pattern.liquid`: placeholder until the pattern is confirmed. `sections/puzzle.liquid` is built but not on the homepage.
+- `sections/puzzle.liquid`: shuffled jigsaw; swap pieces by drag or two taps. `sections/journey.liquid`: story photo, lead line, and chapter blocks. `sections/pattern.liquid` is a placeholder, not on the homepage.
+- Photos in `assets/` (`hero-*`, `puzzle-kamui`, `story-*`) are pre-graded WebPs. The hero photo comes graded, so the hero adds only a dark scrim in CSS.
+- Product image morph: `layout/theme.liquid` names only the opened product (`data-vt-card` / `data-vt-main`) in `pageswap`/`pagereveal`. Never put a static `view-transition-name` on cards.
 - `sections/footer.liquid`: newsletter signup, link columns, and a full-width wordmark. The page slides up off it on scroll.
 - `sections/main-*.liquid`: the product, collection, cart, search, blog, and other page templates.
 - `README.md` is still stock Skeleton.

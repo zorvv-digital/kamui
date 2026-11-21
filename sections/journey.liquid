@@ -1,67 +1,178 @@
-<div id="our-journey" class="journey">
-  {% if section.settings.heading != blank %}
-    <h2 class="journey__heading">{{ section.settings.heading | escape }}</h2>
-  {% endif %}
+{% liquid
+  assign image_src = 'story-desktop.webp' | asset_url
+  assign image_mobile_src = 'story-mobile.webp' | asset_url
+  assign image_alt = 'sections.journey.image_alt' | t
+  if section.settings.image
+    assign image_src = section.settings.image | image_url: width: 2400
+    assign image_mobile_src = image_src
+    assign image_alt = section.settings.image.alt | default: image_alt
+  endif
+  if section.settings.image_mobile
+    assign image_mobile_src = section.settings.image_mobile | image_url: width: 1200
+  endif
+%}
 
-  <div class="journey__grid">
-    <div class="journey__media">
-      {% if section.settings.image %}
-        {{
-          section.settings.image
-          | image_url: width: 1800
-          | image_tag: loading: 'lazy', widths: '600, 900, 1200, 1800', sizes: '(min-width: 750px) 50vw, 100vw'
-        }}
-      {% else %}
-        {{ 'placeholder-scene.svg' | inline_asset_content }}
-      {% endif %}
-    </div>
-
-    {% if section.settings.story != blank %}
-      <div class="journey__story">{{ section.settings.story }}</div>
+<section id="our-journey" class="journey full-width">
+  <div class="journey__media">
+    <picture>
+      <source media="(max-width: 749px)" srcset="{{ image_mobile_src }}">
+      <img src="{{ image_src }}" alt="{{ image_alt | escape }}" width="2048" height="1366" loading="lazy">
+    </picture>
+    {% if section.settings.heading != blank %}
+      <h2 class="journey__heading">{{ section.settings.heading | escape }}</h2>
     {% endif %}
   </div>
-</div>
+
+  <div class="journey__body">
+    {% if section.settings.lead != blank %}
+      <p class="journey__lead">{{ section.settings.lead | escape }}</p>
+    {% endif %}
+
+    {% if section.blocks.size > 0 %}
+      <ol class="journey__chapters" role="list">
+        {% for block in section.blocks %}
+          <li class="journey__chapter" {{ block.shopify_attributes }}>
+            <span class="journey__number" aria-hidden="true">
+              {%- if forloop.index < 10 %}0{% endif %}{{ forloop.index -}}
+            </span>
+            <h3 class="journey__title">{{ block.settings.title | escape }}</h3>
+            <p class="journey__text">{{ block.settings.text | escape }}</p>
+          </li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+  </div>
+</section>
+
+{% style %}
+  {{ section.settings.heading_font | font_face: font_display: 'swap' }}
+  #our-journey .journey__heading {
+    font-family: {{ section.settings.heading_font.family }}, {{ section.settings.heading_font.fallback_families }};
+    font-weight: {{ section.settings.heading_font.weight }};
+  }
+{% endstyle %}
 
 {% stylesheet %}
   .journey {
-    padding-block: clamp(2.5rem, 6vw, 5rem);
-    border-block-start: 1px solid var(--color-rule);
-  }
-  .journey__heading {
-    margin-block-end: clamp(1.5rem, 4vw, 3rem);
-    font-size: clamp(1.25rem, 2vw, 1.75rem);
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    text-align: center;
-    text-transform: uppercase;
-  }
-  .journey__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: clamp(1.5rem, 5vw, 5rem);
+    background: var(--color-foreground);
+    color: var(--color-background);
   }
   .journey__media {
-    aspect-ratio: 4 / 5;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    aspect-ratio: 3 / 2;
+    max-height: 100svh;
+    width: 100%;
     overflow: hidden;
-    background: var(--color-surface);
   }
-  .journey__media img,
-  .journey__media svg {
+  .journey__media img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .journey__story {
+  /* Fade the photo into the dark story below */
+  .journey__media::after {
+    content: '';
+    position: absolute;
+    inset: 50% 0 0;
+    background: linear-gradient(transparent, var(--color-foreground));
+  }
+  .journey__heading {
+    position: relative;
+    z-index: 1;
+    padding: 0 max(var(--page-margin), 3vw) clamp(1.5rem, 4vw, 3.5rem);
+    color: #fff;
+    font-size: clamp(3rem, 9vw, 9rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .journey__body {
     display: grid;
-    gap: 1rem;
-    max-width: 32rem;
-    font-size: clamp(1rem, 1.3vw, 1.125rem);
+    gap: clamp(2.5rem, 6vw, 5rem);
+    padding: clamp(2.5rem, 6vw, 5rem) max(var(--page-margin), 3vw) clamp(3.5rem, 8vw, 7rem);
+  }
+  /* Type matches the product section: big uppercase heading, small spaced labels */
+  .journey__lead {
+    max-width: 22ch;
+    font-size: var(--text-2xl);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .journey__chapters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .journey__chapter {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding-block-start: 1.25rem;
+    border-block-start: 1px solid color-mix(in srgb, var(--color-background) 30%, transparent);
+  }
+  .journey__chapter {
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+  }
+  .journey__number {
+    color: color-mix(in srgb, var(--color-background) 60%, transparent);
+    font-size: 0.6875rem;
+  }
+  .journey__title {
+    font-size: inherit;
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+  .journey__text {
+    max-width: 44ch;
+    color: color-mix(in srgb, var(--color-background) 75%, transparent);
     line-height: 1.6;
   }
   @media (max-width: 749px) {
-    .journey__grid {
-      grid-template-columns: 1fr;
+    .journey__media {
+      aspect-ratio: 4 / 5;
+    }
+    /* Chapters side by side: swipe sideways, next one peeks in */
+    .journey__chapters {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: 78%;
+      gap: var(--space-5);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .journey__chapter {
+      scroll-snap-align: start;
+    }
+    /* Where supported, the row slides sideways as the page scrolls down instead of swiping */
+    @supports (animation-timeline: view()) {
+      @media (prefers-reduced-motion: no-preference) {
+        .journey__body {
+          overflow-x: clip;
+        }
+        .journey__chapters {
+          width: max-content;
+          grid-auto-columns: 78vw;
+          overflow: visible;
+          animation: journey-slide linear both;
+          animation-timeline: view();
+          animation-range: contain 0% contain 100%;
+        }
+        @keyframes journey-slide {
+          to {
+            translate: calc(-100% + 100vw - 2 * max(var(--page-margin), 3vw));
+          }
+        }
+      }
     }
   }
 {% endstylesheet %}
@@ -77,17 +188,46 @@
       "default": "Our journey"
     },
     {
+      "type": "font_picker",
+      "id": "heading_font",
+      "label": "t:labels.heading_font",
+      "default": "anton_n4"
+    },
+    {
       "type": "image_picker",
       "id": "image",
       "label": "t:labels.image"
     },
     {
-      "type": "richtext",
-      "id": "story",
-      "label": "t:labels.story",
-      "default": "<p>Kamui started with a simple idea: clothes worth wearing on repeat. Tell your story here, from the first sketch to the finished piece.</p>"
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:labels.image_mobile"
+    },
+    {
+      "type": "textarea",
+      "id": "lead",
+      "label": "t:labels.story"
     }
   ],
+  "blocks": [
+    {
+      "type": "chapter",
+      "name": "t:general.chapter",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.heading"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "t:labels.text"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
   "presets": [
     {
       "name": "t:general.journey"

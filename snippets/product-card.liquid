@@ -1,6 +1,6 @@
 {% doc %}
   Renders a product card: image (with a second image on hover), sale or sold-out badge, title and price.
-  The image carries a view-transition-name so it morphs into the product page's main image.
+  The image morphs into the product page's main image; layout/theme.liquid names it only when this product is opened.
 
   @param {product} product - The product to render
   @param {string} [sizes] - The sizes attribute for the image
@@ -23,7 +23,7 @@
 %}
 
 <a class="product-card" href="{{ product.url }}">
-  <div class="product-card__media" style="view-transition-name: product-{{ product.id }}">
+  <div class="product-card__media" data-vt-card="{{ product.handle }}">
     {% if product.featured_image %}
       {{
         product.featured_image
@@ -104,6 +104,14 @@
   }
   .product-card__image--hover {
     opacity: 0;
+  }
+  /* Leaving for a product page: snapshot the plain front image, not the hover state */
+  .is-leaving .product-card__image {
+    scale: 1 !important;
+    transition: none !important;
+  }
+  .is-leaving .product-card__image--hover {
+    opacity: 0 !important;
   }
   .product-card__badge {
     position: absolute;
